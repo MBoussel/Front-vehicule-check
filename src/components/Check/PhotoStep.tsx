@@ -37,53 +37,35 @@ function PhotoStep({
 
   useEffect(() => {
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
   function resetAll() {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
 
     setSelectedFile(null);
     setPreviewUrl(null);
     setDamages([]);
     setSelectedDamageId(null);
 
-    if (cameraInputRef.current) {
-      cameraInputRef.current.value = "";
-    }
-
-    if (galleryInputRef.current) {
-      galleryInputRef.current.value = "";
-    }
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+    if (galleryInputRef.current) galleryInputRef.current.value = "";
   }
 
   function setNewFile(file: File) {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-
-    const nextPreviewUrl = URL.createObjectURL(file);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
 
     setSelectedFile(file);
-    setPreviewUrl(nextPreviewUrl);
+    setPreviewUrl(URL.createObjectURL(file));
     setDamages([]);
     setSelectedDamageId(null);
   }
 
-  function handleCameraChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    setNewFile(file);
-  }
 
-  function handleGalleryChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
     setNewFile(file);
   }
 
@@ -119,6 +101,9 @@ function PhotoStep({
     resetAll();
   }
 
+  const cameraInputId = `camera-input-${stepNumber}`;
+  const galleryInputId = `gallery-input-${stepNumber}`;
+
   return (
     <section className="photo-step">
       <header className="photo-step__header">
@@ -131,21 +116,13 @@ function PhotoStep({
 
       {!previewUrl ? (
         <div className="photo-step__buttons">
-          <button
-            type="button"
-            className="photo-step__primary-button"
-            onClick={() => cameraInputRef.current?.click()}
-          >
+          <label htmlFor={cameraInputId} className="photo-step__primary-button">
             Prendre une photo
-          </button>
+          </label>
 
-          <button
-            type="button"
-            className="photo-step__secondary-button"
-            onClick={() => galleryInputRef.current?.click()}
-          >
+          <label htmlFor={galleryInputId} className="photo-step__secondary-button">
             Choisir depuis la galerie
-          </button>
+          </label>
         </div>
       ) : (
         <div className="photo-step__annotator-block">
@@ -186,20 +163,22 @@ function PhotoStep({
       )}
 
       <input
+        id={cameraInputId}
         ref={cameraInputRef}
         type="file"
         accept="image/*"
         capture="environment"
-        hidden
-        onChange={handleCameraChange}
+        className="photo-step__file-input"
+        onChange={handleFileChange}
       />
 
       <input
+        id={galleryInputId}
         ref={galleryInputRef}
         type="file"
         accept="image/*"
-        hidden
-        onChange={handleGalleryChange}
+        className="photo-step__file-input"
+        onChange={handleFileChange}
       />
     </section>
   );
