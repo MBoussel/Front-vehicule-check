@@ -1,0 +1,26 @@
+.license-upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.license-upload-field__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border-radius: 14px;
+  padding: 0 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.license-upload-field__button--primary {
+  background: var(--primary);
+  color: #071411;
+}
+
+.license-upload-field__button--secondary {
+  background: #2b3140;
+  color: var(--text);
+}
