@@ -31,14 +31,15 @@ function VehicleEditPage() {
       try {
         setIsLoading(true);
         setErrorMessage("");
+
         const vehicle = await getVehicleById(Number(vehicleId));
 
         setBrand(vehicle.brand);
         setModel(vehicle.model);
         setPlateNumber(vehicle.plate_number);
-        setFuelType(vehicle.fuel_type);
+        setFuelType(vehicle.fuel_type as FuelType);
         setCurrentMileage(String(vehicle.current_mileage));
-        setStatus(vehicle.status);
+        setStatus(vehicle.status as VehicleStatus);
       } catch (error) {
         setErrorMessage("Impossible de charger le véhicule.");
       } finally {
@@ -94,12 +95,22 @@ function VehicleEditPage() {
         <div className="vehicle-edit-page__grid">
           <label className="vehicle-edit-page__field">
             <span>Marque</span>
-            <input type="text" value={brand} onChange={(event) => setBrand(event.target.value)} required />
+            <input
+              type="text"
+              value={brand}
+              onChange={(event) => setBrand(event.target.value)}
+              required
+            />
           </label>
 
           <label className="vehicle-edit-page__field">
             <span>Modèle</span>
-            <input type="text" value={model} onChange={(event) => setModel(event.target.value)} required />
+            <input
+              type="text"
+              value={model}
+              onChange={(event) => setModel(event.target.value)}
+              required
+            />
           </label>
 
           <label className="vehicle-edit-page__field">
@@ -114,7 +125,10 @@ function VehicleEditPage() {
 
           <label className="vehicle-edit-page__field">
             <span>Carburant</span>
-            <select value={fuelType} onChange={(event) => setFuelType(event.target.value as FuelType)}>
+            <select
+              value={fuelType}
+              onChange={(event) => setFuelType(event.target.value as FuelType)}
+            >
               <option value="essence">Essence</option>
               <option value="diesel">Diesel</option>
               <option value="hybrid">Hybride</option>
@@ -135,7 +149,10 @@ function VehicleEditPage() {
 
           <label className="vehicle-edit-page__field">
             <span>Statut</span>
-            <select value={status} onChange={(event) => setStatus(event.target.value as VehicleStatus)}>
+            <select
+              value={status}
+              onChange={(event) => setStatus(event.target.value as VehicleStatus)}
+            >
               <option value="available">Disponible</option>
               <option value="rented">Loué</option>
               <option value="maintenance">Maintenance</option>
@@ -144,7 +161,9 @@ function VehicleEditPage() {
           </label>
         </div>
 
-        {errorMessage ? <p className="vehicle-edit-page__error">{errorMessage}</p> : null}
+        {errorMessage ? (
+          <p className="vehicle-edit-page__error">{errorMessage}</p>
+        ) : null}
 
         <div className="vehicle-edit-page__actions">
           <button
@@ -155,7 +174,11 @@ function VehicleEditPage() {
             Annuler
           </button>
 
-          <button type="submit" className="vehicle-edit-page__primary-button" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="vehicle-edit-page__primary-button"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Enregistrement..." : "Enregistrer"}
           </button>
         </div>
