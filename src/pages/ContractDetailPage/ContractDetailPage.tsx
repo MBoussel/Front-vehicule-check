@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { downloadCheckPdf } from "../../api/checkApi";
 import { getContractById } from "../../api/contractApi";
 import type { RentalContract } from "../../types/contract";
 import "./ContractDetailPage.css";
@@ -63,6 +64,7 @@ function ContractDetailPage() {
   const [contract, setContract] = useState<RentalContract | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
   useEffect(() => {
     async function loadContract() {
@@ -94,6 +96,18 @@ function ContractDetailPage() {
   const returnCheck = useMemo(() => {
     return contract?.checks?.find((check) => check.type_check === "return") ?? null;
   }, [contract]);
+
+  async function handleDownloadPdf(checkId: number) {
+    try {
+      setIsDownloadingPdf(true);
+      setErrorMessage("");
+      await downloadCheckPdf(checkId);
+    } catch {
+      setErrorMessage("Impossible de télécharger le PDF.");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  }
 
   if (isLoading) {
     return <p className="contract-detail-page__state">Chargement...</p>;
@@ -334,50 +348,71 @@ function ContractDetailPage() {
         ) : null}
       </div>
 
-   <div className="contract-detail-page__actions">
-  <Link to="/contracts" className="contract-detail-page__secondary-button">
-    Retour contrats
-  </Link>
+      {errorMessage ? (
+        <p className="contract-detail-page__state contract-detail-page__state--error">
+          {errorMessage}
+        </p>
+      ) : null}
 
-  {!departureCheck ? (
-    <Link
-      to={`/contracts/${contract.id}/check?type=departure`}
-      className="contract-detail-page__primary-button"
-    >
-      Faire l’état des lieux de départ
-    </Link>
-  ) : departureCheck.status !== "completed" ? (
-    <Link
-      to={`/contracts/${contract.id}/check?type=departure`}
-      className="contract-detail-page__primary-button"
-    >
-      Reprendre l’état des lieux de départ
-    </Link>
-  ) : !returnCheck ? (
-    <Link
-      to={`/contracts/${contract.id}/check?type=return`}
-      className="contract-detail-page__primary-button"
-    >
-      Faire l’état des lieux de retour
-    </Link>
-  ) : returnCheck.status !== "completed" ? (
-    <Link
-      to={`/contracts/${contract.id}/check?type=return`}
-      className="contract-detail-page__primary-button"
-    >
-      Reprendre l’état des lieux de retour
-    </Link>
-  ) : (
-    <a
-      href={`http://localhost:8000/checks/${returnCheck.id}/pdf`}
-      className="contract-detail-page__primary-button"
-      target="_blank"
-      rel="noreferrer"
-    >
-      Voir le PDF final
-    </a>
-  )}
-</div>
+      <div className="contract-detail-page__actions">
+        <Link to="/contracts" className="contract-detail-page__secondary-button">
+          Retour contrats
+        </Link>
+
+        {!departureCheck ? (
+          <Link
+            to={`/contracts/${contract.id}/check?type=departure`}
+            className="contract-detail-page__primary-button"
+          >
+            Faire l’état des lieux de départ
+          </Link>
+        ) : departureCheck.status !== "completed" ? (
+          <Link
+            to={`/contracts/${contract.id}/check?type=departure`}
+            className="contract-detail-page__primary-button"
+          >
+            Reprendre l’état des lieux de départ
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className="contract-detail-page__primary-button"
+            onClick={() => void handleDownloadPdf(departureCheck.id)}
+            disabled={isDownloadingPdf}
+          >
+            {isDownloadingPdf ? "Téléchargement..." : "Télécharger le PDF départ"}
+          </button>
+        )}
+
+        {departureCheck?.status === "completed" && !returnCheck ? (
+          <Link
+            to={`/contracts/${contract.id}/check?type=return`}
+            className="contract-detail-page__secondary-button"
+          >
+            Faire l’état des lieux de retour
+          </Link>
+        ) : null}
+
+        {returnCheck && returnCheck.status !== "completed" ? (
+          <Link
+            to={`/contracts/${contract.id}/check?type=return`}
+            className="contract-detail-page__secondary-button"
+          >
+            Reprendre l’état des lieux de retour
+          </Link>
+        ) : null}
+
+        {returnCheck?.status === "completed" ? (
+          <button
+            type="button"
+            className="contract-detail-page__secondary-button"
+            onClick={() => void handleDownloadPdf(returnCheck.id)}
+            disabled={isDownloadingPdf}
+          >
+            {isDownloadingPdf ? "Téléchargement..." : "Télécharger le PDF retour"}
+          </button>
+        ) : null}
+      </div>
     </section>
   );
 }
