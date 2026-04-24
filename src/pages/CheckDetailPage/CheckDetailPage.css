@@ -1,0 +1,134 @@
+.check-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.check-detail-page__header,
+.check-detail-page__summary,
+.check-detail-page__notes {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(29, 33, 43, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.check-detail-page__eyebrow {
+  margin: 0 0 6px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.check-detail-page__title {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+}
+
+.check-detail-page__description {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.check-detail-page__header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.check-detail-page__primary-button,
+.check-detail-page__secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 16px;
+  border-radius: 16px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.check-detail-page__primary-button {
+  background: var(--primary);
+  color: #071411;
+}
+
+.check-detail-page__secondary-button {
+  background: #2b3140;
+  color: var(--text);
+}
+
+.check-detail-page__summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.check-detail-page__summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #171b23;
+}
+
+.check-detail-page__summary-card strong {
+  font-size: 0.95rem;
+}
+
+.check-detail-page__summary-card span {
+  color: var(--text-soft);
+}
+
+.check-detail-page__notes h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.check-detail-page__notes p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
+.check-detail-page__photos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.check-detail-page__empty,
+.check-detail-page__state {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(29, 33, 43, 0.92);
+}
+
+.check-detail-page__state--error {
+  color: #ff9a9a;
+}
+
+@media (min-width: 768px) {
+  .check-detail-page__summary {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .check-detail-page__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .check-detail-page__header-actions {
+    margin-top: 0;
+    min-width: 220px;
+  }
+}

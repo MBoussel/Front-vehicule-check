@@ -1,0 +1,64 @@
+.photo-step {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: #171b23;
+}
+
+.photo-step__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.photo-step__progress {
+  margin: 0;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.photo-step__title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.photo-step__hint {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+.photo-step__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.photo-step__primary-button,
+.photo-step__secondary-button {
+  min-height: 54px;
+  border: none;
+  border-radius: 16px;
+  padding: 0 18px;
+  font-weight: 700;
+}
+
+.photo-step__primary-button {
+  background: var(--primary);
+  color: #071411;
+}
+
+.photo-step__secondary-button {
+  background: #2b3140;
+  color: var(--text);
+}
+
+.photo-step__annotator-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}

@@ -1,0 +1,150 @@
+.contract-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contract-detail-page__header,
+.contract-detail-page__card,
+.contract-detail-page__state {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(29, 33, 43, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.contract-detail-page__eyebrow {
+  margin: 0 0 6px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.contract-detail-page__title {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.contract-detail-page__status {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.contract-detail-page__status--draft {
+  background: rgba(255, 184, 77, 0.16);
+  color: #ffd089;
+}
+
+.contract-detail-page__status--signed {
+  background: rgba(70, 211, 154, 0.16);
+  color: #8bf0c3;
+}
+
+.contract-detail-page__status--cancelled {
+  background: rgba(255, 107, 107, 0.16);
+  color: #ffacac;
+}
+
+.contract-detail-page__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.contract-detail-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contract-detail-page__card--full {
+  grid-column: 1 / -1;
+}
+
+.contract-detail-page__card h3 {
+  margin: 0 0 12px;
+}
+
+.contract-detail-page__card p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
+.contract-detail-page__subgrid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.contract-detail-page__image-wrapper {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #12161d;
+}
+
+.contract-detail-page__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.contract-detail-page__muted {
+  color: var(--text-soft);
+  opacity: 0.8;
+}
+
+.contract-detail-page__terms {
+  white-space: pre-wrap;
+}
+
+.contract-detail-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.contract-detail-page__secondary-button,
+.contract-detail-page__primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  border-radius: 16px;
+  padding: 0 18px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.contract-detail-page__secondary-button {
+  background: #2b3140;
+  color: var(--text);
+}
+
+.contract-detail-page__primary-button {
+  background: var(--primary);
+  color: #071411;
+}
+
+.contract-detail-page__state--error {
+  color: #ff9a9a;
+}
+
+@media (max-width: 900px) {
+  .contract-detail-page__grid,
+  .contract-detail-page__subgrid {
+    grid-template-columns: 1fr;
+  }
+}

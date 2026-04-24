@@ -1,0 +1,201 @@
+.check-create-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.check-create-page__header,
+.check-create-page__form,
+.check-create-page__state,
+.check-create-page__wizard,
+.check-create-page__extras {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(29, 33, 43, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.check-create-page__eyebrow {
+  margin: 0 0 6px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.check-create-page__title {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+}
+
+.check-create-page__description {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.check-create-page__form,
+.check-create-page__extras {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.check-create-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #171b23;
+}
+
+.check-create-page__section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.check-create-page__section-header h3 {
+  margin: 0;
+}
+
+.check-create-page__section-header p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.check-create-page__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.check-create-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.check-create-page__field--full {
+  grid-column: 1 / -1;
+}
+
+.check-create-page__field span {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+.check-create-page__field input,
+.check-create-page__field select,
+.check-create-page__field textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: #12161d;
+  color: var(--text);
+  outline: none;
+}
+
+.check-create-page__field input,
+.check-create-page__field select {
+  min-height: 52px;
+}
+
+.check-create-page__field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.check-create-page__field input:focus,
+.check-create-page__field select:focus,
+.check-create-page__field textarea:focus {
+  border-color: var(--primary);
+}
+
+.check-create-page__state--error {
+  color: #ff9a9a;
+}
+
+.check-create-page__actions,
+.check-create-page__wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.check-create-page__secondary-button,
+.check-create-page__primary-button {
+  min-height: 50px;
+  border: none;
+  border-radius: 16px;
+  padding: 0 18px;
+  font-weight: 700;
+}
+
+.check-create-page__secondary-button {
+  background: #2b3140;
+  color: var(--text);
+}
+
+.check-create-page__primary-button {
+  background: var(--primary);
+  color: #071411;
+}
+
+.check-create-page__primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.check-create-page__other-count {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+.check-create-page__mileage-summary {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.check-create-page__mileage-summary span {
+  color: var(--text-soft);
+}
+
+.check-create-page__mileage-summary strong {
+  color: var(--text);
+  text-align: right;
+}
+.check-create-page__mileage-summary {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.check-create-page__mileage-summary span {
+  color: var(--text-soft);
+}
+
+.check-create-page__mileage-summary strong {
+  color: var(--text);
+  text-align: right;
+}
+@media (max-width: 900px) {
+  .check-create-page__grid {
+    grid-template-columns: 1fr;
+  }
+}

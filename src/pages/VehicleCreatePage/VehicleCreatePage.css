@@ -1,0 +1,115 @@
+.vehicle-create-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vehicle-create-page__header,
+.vehicle-create-page__form {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(29, 33, 43, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.vehicle-create-page__eyebrow {
+  margin: 0 0 6px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vehicle-create-page__title {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+}
+
+.vehicle-create-page__description {
+  margin: 0;
+  color: var(--text-soft);
+  max-width: 700px;
+}
+
+.vehicle-create-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vehicle-create-page__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.vehicle-create-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vehicle-create-page__field span {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+.vehicle-create-page__field input,
+.vehicle-create-page__field select {
+  min-height: 52px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0 16px;
+  background: #12161d;
+  color: var(--text);
+  outline: none;
+}
+
+.vehicle-create-page__field input:focus,
+.vehicle-create-page__field select:focus {
+  border-color: var(--primary);
+}
+
+.vehicle-create-page__error {
+  margin: 0;
+  color: #ff9a9a;
+}
+
+.vehicle-create-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vehicle-create-page__secondary-button,
+.vehicle-create-page__primary-button {
+  min-height: 50px;
+  border: none;
+  border-radius: 16px;
+  padding: 0 18px;
+  font-weight: 700;
+}
+
+.vehicle-create-page__secondary-button {
+  background: #2b3140;
+  color: var(--text);
+}
+
+.vehicle-create-page__primary-button {
+  background: var(--primary);
+  color: #071411;
+}
+
+.vehicle-create-page__primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .vehicle-create-page__grid {
+    grid-template-columns: 1fr;
+  }
+}

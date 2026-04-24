@@ -1,0 +1,74 @@
+.check-damage-step-page {
+  padding: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.check-damage-step-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.check-damage-step-page__header h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  color: #111827;
+}
+
+.check-damage-step-page__header p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.check-damage-step-page__stats {
+  align-self: flex-start;
+  background: #111827;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.check-damage-summary {
+  margin-top: 16px;
+}
+
+.check-damage-summary h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #111827;
+}
+
+.check-damage-summary__card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.check-damage-summary__card p {
+  margin: 0 0 8px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.check-damage-summary__card p:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .check-damage-step-page {
+    padding: 16px;
+  }
+
+  .check-damage-step-page__header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}

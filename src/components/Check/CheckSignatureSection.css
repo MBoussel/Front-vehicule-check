@@ -1,0 +1,140 @@
+.check-signature-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(29, 33, 43, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.check-signature-section__header h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+
+.check-signature-section__header p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
+.check-signature-section__role-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.check-signature-section__role-button {
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #171b23;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.check-signature-section__role-button--active {
+  border-color: var(--primary);
+  background: rgba(98, 255, 192, 0.12);
+}
+
+.check-signature-section__status-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.check-signature-section__status-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #171b23;
+}
+
+.check-signature-section__status-card strong {
+  font-size: 0.95rem;
+}
+
+.check-signature-section__status-card span {
+  color: var(--text-soft);
+}
+
+.check-signature-section__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.check-signature-section__preview-label {
+  margin: 0;
+  font-weight: 700;
+}
+
+.check-signature-section__preview-image {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+}
+
+.check-signature-section__canvas-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.check-signature-section__canvas-title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.check-signature-section__message {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+}
+
+.check-signature-section__message--error {
+  background: rgba(255, 80, 80, 0.12);
+  color: #ffaaaa;
+  border: 1px solid rgba(255, 80, 80, 0.25);
+}
+
+.check-signature-section__message--success {
+  background: rgba(50, 190, 120, 0.12);
+  color: #aef0c8;
+  border: 1px solid rgba(50, 190, 120, 0.25);
+}
+
+.check-signature-section__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.check-signature-section__primary-button {
+  min-height: 50px;
+  border: none;
+  border-radius: 16px;
+  padding: 0 18px;
+  background: var(--primary);
+  color: #071411;
+  font-weight: 700;
+}
+
+.check-signature-section__primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (min-width: 768px) {
+  .check-signature-section__status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,30 @@
+.contract-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contract-list__header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.contract-list__button {
+  background: var(--primary);
+  padding: 10px 16px;
+  border-radius: 12px;
+}
+
+.contract-list__grid {
+  display: grid;
+  gap: 12px;
+}
+
+.contract-card {
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
