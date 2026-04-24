@@ -482,25 +482,25 @@ function ContractCreateForm(props: ContractCreateFormProps) {
         </div>
 
         <div className="contract-create-page__grid">
-          <label className="contract-create-page__field">
-            <span>Date de départ</span>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
-              required
-            />
-          </label>
+            <label className="contract-create-page__field">
+  <span>Date et heure de départ</span>
+  <input
+    type="datetime-local"
+    value={startDate}
+    onChange={(event) => setStartDate(event.target.value)}
+    required
+  />
+</label>
 
-          <label className="contract-create-page__field">
-            <span>Date de retour</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
-              required
-            />
-          </label>
+         <label className="contract-create-page__field">
+  <span>Date et heure de retour</span>
+  <input
+    type="datetime-local"
+    value={endDate}
+    onChange={(event) => setEndDate(event.target.value)}
+    required
+  />
+</label>
 
           <label className="contract-create-page__field">
             <span>Prix location (€)</span>

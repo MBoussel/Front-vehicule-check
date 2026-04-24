@@ -9,14 +9,19 @@ import type { SignatureMode } from "../../types/contract";
 import type { Vehicle } from "../../types/vehicle";
 import "./ContractCreatePage.css";
 
+function toDatetimeLocalValue(date: Date): string {
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 16);
+}
+
 function getTodayDate(): string {
-  return new Date().toISOString().split("T")[0];
+  return toDatetimeLocalValue(new Date());
 }
 
 function getDefaultEndDate(): string {
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + 1);
-  return currentDate.toISOString().split("T")[0];
+  return toDatetimeLocalValue(currentDate);
 }
 
 function generateContractNumber(): string {
