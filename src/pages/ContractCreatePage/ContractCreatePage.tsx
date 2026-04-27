@@ -92,11 +92,12 @@ function ContractCreatePage() {
   }, []);
 
   const selectedVehicle = useMemo(() => {
-    return vehicles.find((v) => String(v.id) === vehicleId) ?? null;
+    return vehicles.find((vehicle) => String(vehicle.id) === vehicleId) ?? null;
   }, [vehicleId, vehicles]);
 
   async function uploadPrimary(file: File, setter: (url: string) => void) {
     try {
+      setErrorMessage("");
       setIsUploadingPrimaryLicense(true);
       const result = await uploadLicensePhoto(file);
       setter(result.file_url);
@@ -109,6 +110,7 @@ function ContractCreatePage() {
 
   async function uploadSecondary(file: File, setter: (url: string) => void) {
     try {
+      setErrorMessage("");
       setIsUploadingSecondaryLicense(true);
       const result = await uploadLicensePhoto(file);
       setter(result.file_url);
@@ -127,37 +129,59 @@ function ContractCreatePage() {
       return;
     }
 
-    if (!licenseFrontPhotoUrl || !licenseBackPhotoUrl) {
-      setErrorMessage("Ajoute le permis principal.");
+    if (!startDate || !endDate) {
+      setErrorMessage("Renseigne les dates de location.");
       return;
     }
 
-    setIsSubmitting(true);
+    if (!licenseFrontPhotoUrl || !licenseBackPhotoUrl) {
+      setErrorMessage("Ajoute le recto et le verso du permis du conducteur principal.");
+      return;
+    }
+
     setErrorMessage("");
+    setIsSubmitting(true);
 
     try {
       const contract = await createContract({
-        contract_number: contractNumber || `TEMP-${Date.now()}`,
+        contract_number: contractNumber.trim() || `TEMP-${Date.now()}`,
 
         vehicle_id: Number(vehicleId),
 
         customer_first_name: customerFirstName.trim(),
         customer_last_name: customerLastName.trim(),
+        customer_email: customerEmail.trim() || undefined,
+        customer_phone: customerPhone.trim() || undefined,
+        customer_address: customerAddress.trim() || undefined,
 
         license_number: licenseNumber.trim(),
-        license_front_photo_url: licenseFrontPhotoUrl,
-        license_back_photo_url: licenseBackPhotoUrl,
+        license_issue_date: licenseIssueDate || undefined,
+        license_country: licenseCountry.trim() || undefined,
+        license_front_photo_url: licenseFrontPhotoUrl || undefined,
+        license_back_photo_url: licenseBackPhotoUrl || undefined,
+
+        secondary_driver_first_name: secondaryDriverFirstName.trim() || undefined,
+        secondary_driver_last_name: secondaryDriverLastName.trim() || undefined,
+        secondary_driver_email: secondaryDriverEmail.trim() || undefined,
+        secondary_driver_phone: secondaryDriverPhone.trim() || undefined,
+        secondary_license_number: secondaryLicenseNumber.trim() || undefined,
+        secondary_license_issue_date: secondaryLicenseIssueDate || undefined,
+        secondary_license_country: secondaryLicenseCountry.trim() || undefined,
+        secondary_license_front_photo_url: secondaryLicenseFrontPhotoUrl || undefined,
+        secondary_license_back_photo_url: secondaryLicenseBackPhotoUrl || undefined,
 
         start_date: new Date(startDate).toISOString(),
         end_date: new Date(endDate).toISOString(),
 
         rental_price: Number(rentalPrice || 0),
 
-        pickup_location: pickupLocation,
-        return_location: returnLocation,
+        pickup_location: pickupLocation.trim() || undefined,
+        return_location: returnLocation.trim() || undefined,
+        delivery_fee: deliveryFee ? Number(deliveryFee) : undefined,
 
         status: "draft",
         signature_mode: signatureMode,
+        terms_and_conditions: termsAndConditions.trim() || undefined,
       });
 
       navigate(`/contracts/${contract.id}`);
@@ -170,30 +194,35 @@ function ContractCreatePage() {
 
   return (
     <section className="contract-create-page">
-      <h2>Créer un contrat</h2>
+      <header className="contract-create-page__header">
+        <div>
+          <p className="contract-create-page__eyebrow">Contrats</p>
+          <h2 className="contract-create-page__title">Créer un contrat</h2>
+        </div>
+
+        <p className="contract-create-page__description">
+          Formulaire contrat avec véhicule, client, permis recto/verso, livraison et conducteur secondaire.
+        </p>
+      </header>
 
       <ContractCreateForm
         contractNumber={contractNumber}
         setContractNumber={setContractNumber}
-
         vehicleId={vehicleId}
         vehicles={vehicles}
         isLoadingVehicles={isLoadingVehicles}
         selectedVehicle={selectedVehicle}
-
         customerFirstName={customerFirstName}
         customerLastName={customerLastName}
         customerEmail={customerEmail}
         customerPhone={customerPhone}
         customerAddress={customerAddress}
-
         licenseNumber={licenseNumber}
         licenseIssueDate={licenseIssueDate}
         licenseCountry={licenseCountry}
         licenseFrontPhotoUrl={licenseFrontPhotoUrl}
         licenseBackPhotoUrl={licenseBackPhotoUrl}
         isUploadingPrimaryLicense={isUploadingPrimaryLicense}
-
         secondaryDriverFirstName={secondaryDriverFirstName}
         secondaryDriverLastName={secondaryDriverLastName}
         secondaryDriverEmail={secondaryDriverEmail}
@@ -204,34 +233,27 @@ function ContractCreatePage() {
         secondaryLicenseFrontPhotoUrl={secondaryLicenseFrontPhotoUrl}
         secondaryLicenseBackPhotoUrl={secondaryLicenseBackPhotoUrl}
         isUploadingSecondaryLicense={isUploadingSecondaryLicense}
-
         startDate={startDate}
         endDate={endDate}
         rentalPrice={rentalPrice}
         pickupLocation={pickupLocation}
         returnLocation={returnLocation}
         deliveryFee={deliveryFee}
-
         signatureMode={signatureMode}
         termsAndConditions={termsAndConditions}
-
         errorMessage={errorMessage}
         isSubmitting={isSubmitting}
-
         onSubmit={handleSubmit}
         onCancel={() => navigate("/contracts")}
-
         setVehicleId={setVehicleId}
         setCustomerFirstName={setCustomerFirstName}
         setCustomerLastName={setCustomerLastName}
         setCustomerEmail={setCustomerEmail}
         setCustomerPhone={setCustomerPhone}
         setCustomerAddress={setCustomerAddress}
-
         setLicenseNumber={setLicenseNumber}
         setLicenseIssueDate={setLicenseIssueDate}
         setLicenseCountry={setLicenseCountry}
-
         setSecondaryDriverFirstName={setSecondaryDriverFirstName}
         setSecondaryDriverLastName={setSecondaryDriverLastName}
         setSecondaryDriverEmail={setSecondaryDriverEmail}
@@ -239,33 +261,30 @@ function ContractCreatePage() {
         setSecondaryLicenseNumber={setSecondaryLicenseNumber}
         setSecondaryLicenseIssueDate={setSecondaryLicenseIssueDate}
         setSecondaryLicenseCountry={setSecondaryLicenseCountry}
-
         setStartDate={setStartDate}
         setEndDate={setEndDate}
         setRentalPrice={setRentalPrice}
         setPickupLocation={setPickupLocation}
         setReturnLocation={setReturnLocation}
         setDeliveryFee={setDeliveryFee}
-
         setSignatureMode={setSignatureMode}
         setTermsAndConditions={setTermsAndConditions}
-
-        onPrimaryFrontUpload={(e) =>
-          e.target.files?.[0] &&
-          uploadPrimary(e.target.files[0], setLicenseFrontPhotoUrl)
-        }
-        onPrimaryBackUpload={(e) =>
-          e.target.files?.[0] &&
-          uploadPrimary(e.target.files[0], setLicenseBackPhotoUrl)
-        }
-        onSecondaryFrontUpload={(e) =>
-          e.target.files?.[0] &&
-          uploadSecondary(e.target.files[0], setSecondaryLicenseFrontPhotoUrl)
-        }
-        onSecondaryBackUpload={(e) =>
-          e.target.files?.[0] &&
-          uploadSecondary(e.target.files[0], setSecondaryLicenseBackPhotoUrl)
-        }
+        onPrimaryFrontUpload={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadPrimary(file, setLicenseFrontPhotoUrl);
+        }}
+        onPrimaryBackUpload={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadPrimary(file, setLicenseBackPhotoUrl);
+        }}
+        onSecondaryFrontUpload={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadSecondary(file, setSecondaryLicenseFrontPhotoUrl);
+        }}
+        onSecondaryBackUpload={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadSecondary(file, setSecondaryLicenseBackPhotoUrl);
+        }}
       />
     </section>
   );
