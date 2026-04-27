@@ -6,6 +6,8 @@ import LicenseUploadField from "./LicenseUploadField";
 
 type ContractCreateFormProps = {
   contractNumber: string;
+  setContractNumber: (value: string) => void;
+
   vehicleId: string;
   vehicles: Vehicle[];
   isLoadingVehicles: boolean;
@@ -51,7 +53,6 @@ type ContractCreateFormProps = {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void | Promise<void>;
   onCancel: () => void;
 
-  setContractNumber: (value: string) => void;
   setVehicleId: (value: string) => void;
 
   setCustomerFirstName: (value: string) => void;
@@ -92,9 +93,7 @@ function readVehicleMoney(
   vehicle: Vehicle | null,
   fieldName: "deposit_amount" | "franchise_amount",
 ): string {
-  if (!vehicle) {
-    return "Auto";
-  }
+  if (!vehicle) return "Auto";
 
   const rawValue = vehicle[fieldName];
 
@@ -108,6 +107,8 @@ function readVehicleMoney(
 function ContractCreateForm(props: ContractCreateFormProps) {
   const {
     contractNumber,
+    setContractNumber,
+
     vehicleId,
     vehicles,
     isLoadingVehicles,
@@ -153,7 +154,6 @@ function ContractCreateForm(props: ContractCreateFormProps) {
     onSubmit,
     onCancel,
 
-    setContractNumber,
     setVehicleId,
 
     setCustomerFirstName,
@@ -220,6 +220,7 @@ function ContractCreateForm(props: ContractCreateFormProps) {
               <option value="">
                 {isLoadingVehicles ? "Chargement des véhicules..." : "Choisir un véhicule"}
               </option>
+
               {vehicles.map((vehicle) => (
                 <option key={vehicle.id} value={vehicle.id}>
                   {vehicle.brand} {vehicle.model} ({vehicle.plate_number})
@@ -482,25 +483,25 @@ function ContractCreateForm(props: ContractCreateFormProps) {
         </div>
 
         <div className="contract-create-page__grid">
-            <label className="contract-create-page__field">
-  <span>Date et heure de départ</span>
-  <input
-    type="datetime-local"
-    value={startDate}
-    onChange={(event) => setStartDate(event.target.value)}
-    required
-  />
-</label>
+          <label className="contract-create-page__field">
+            <span>Date et heure de départ</span>
+            <input
+              type="datetime-local"
+              value={startDate}
+              onChange={(event) => setStartDate(event.target.value)}
+              required
+            />
+          </label>
 
-         <label className="contract-create-page__field">
-  <span>Date et heure de retour</span>
-  <input
-    type="datetime-local"
-    value={endDate}
-    onChange={(event) => setEndDate(event.target.value)}
-    required
-  />
-</label>
+          <label className="contract-create-page__field">
+            <span>Date et heure de retour</span>
+            <input
+              type="datetime-local"
+              value={endDate}
+              onChange={(event) => setEndDate(event.target.value)}
+              required
+            />
+          </label>
 
           <label className="contract-create-page__field">
             <span>Prix location (€)</span>
