@@ -170,8 +170,8 @@ function ContractCreatePage() {
         secondary_license_front_photo_url: secondaryLicenseFrontPhotoUrl || undefined,
         secondary_license_back_photo_url: secondaryLicenseBackPhotoUrl || undefined,
 
-        start_date: new Date(startDate).toISOString(),
-        end_date: new Date(endDate).toISOString(),
+    start_date: startDate,
+end_date: endDate,
 
         rental_price: Number(rentalPrice || 0),
 
