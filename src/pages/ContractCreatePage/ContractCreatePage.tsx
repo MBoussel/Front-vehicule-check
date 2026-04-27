@@ -35,9 +35,7 @@ function ContractCreatePage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(true);
 
-  // ✅ IMPORTANT : setter présent
   const [contractNumber, setContractNumber] = useState("");
-
   const [vehicleId, setVehicleId] = useState("");
 
   const [customerFirstName, setCustomerFirstName] = useState("");
@@ -150,8 +148,9 @@ function ContractCreatePage() {
         license_front_photo_url: licenseFrontPhotoUrl,
         license_back_photo_url: licenseBackPhotoUrl,
 
-        start_date: startDate,
-        end_date: endDate,
+        start_date: new Date(startDate).toISOString(),
+        end_date: new Date(endDate).toISOString(),
+
         rental_price: Number(rentalPrice || 0),
 
         pickup_location: pickupLocation,
@@ -175,7 +174,7 @@ function ContractCreatePage() {
 
       <ContractCreateForm
         contractNumber={contractNumber}
-        setContractNumber={setContractNumber} 
+        setContractNumber={setContractNumber}
 
         vehicleId={vehicleId}
         vehicles={vehicles}
