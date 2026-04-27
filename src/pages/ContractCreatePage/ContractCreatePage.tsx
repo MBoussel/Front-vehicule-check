@@ -35,7 +35,7 @@ function ContractCreatePage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(true);
 
-  // ⚠️ IMPORTANT : on garde le setter
+  // ✅ IMPORTANT : setter présent
   const [contractNumber, setContractNumber] = useState("");
 
   const [vehicleId, setVehicleId] = useState("");
@@ -139,7 +139,7 @@ function ContractCreatePage() {
 
     try {
       const contract = await createContract({
-        contract_number: contractNumber || `TEMP-${Date.now()}`, // temp fallback
+        contract_number: contractNumber || `TEMP-${Date.now()}`,
 
         vehicle_id: Number(vehicleId),
 
@@ -175,7 +175,7 @@ function ContractCreatePage() {
 
       <ContractCreateForm
         contractNumber={contractNumber}
-        setContractNumber={setContractNumber} // ✅ FIX ICI
+        setContractNumber={setContractNumber} 
 
         vehicleId={vehicleId}
         vehicles={vehicles}
