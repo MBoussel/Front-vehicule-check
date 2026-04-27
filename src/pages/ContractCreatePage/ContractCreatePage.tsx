@@ -24,23 +24,14 @@ function getDefaultEndDate(): string {
   return toDatetimeLocalValue(currentDate);
 }
 
-function generateContractNumber(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const random = Math.floor(Math.random() * 9000 + 1000);
-
-  return `CTR-${year}${month}${day}-${random}`;
-}
-
 function ContractCreatePage() {
   const navigate = useNavigate();
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(true);
 
-  const [contractNumber, setContractNumber] = useState(generateContractNumber());
+  const [contractNumber,] = useState("");
+
   const [vehicleId, setVehicleId] = useState("");
 
   const [customerFirstName, setCustomerFirstName] = useState("");
@@ -100,7 +91,11 @@ function ContractCreatePage() {
     return vehicles.find((vehicle) => String(vehicle.id) === vehicleId) ?? null;
   }, [vehicleId, vehicles]);
 
-  async function uploadPrimary(file: File, setter: (url: string) => void, errorText: string) {
+  async function uploadPrimary(
+    file: File,
+    setter: (url: string) => void,
+    errorText: string,
+  ) {
     try {
       setErrorMessage("");
       setIsUploadingPrimaryLicense(true);
@@ -113,7 +108,11 @@ function ContractCreatePage() {
     }
   }
 
-  async function uploadSecondary(file: File, setter: (url: string) => void, errorText: string) {
+  async function uploadSecondary(
+    file: File,
+    setter: (url: string) => void,
+    errorText: string,
+  ) {
     try {
       setErrorMessage("");
       setIsUploadingSecondaryLicense(true);
@@ -129,25 +128,45 @@ function ContractCreatePage() {
   async function handlePrimaryFrontUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    await uploadPrimary(file, setLicenseFrontPhotoUrl, "Impossible d’uploader le recto du permis principal.");
+
+    await uploadPrimary(
+      file,
+      setLicenseFrontPhotoUrl,
+      "Impossible d’uploader le recto du permis principal.",
+    );
   }
 
   async function handlePrimaryBackUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    await uploadPrimary(file, setLicenseBackPhotoUrl, "Impossible d’uploader le verso du permis principal.");
+
+    await uploadPrimary(
+      file,
+      setLicenseBackPhotoUrl,
+      "Impossible d’uploader le verso du permis principal.",
+    );
   }
 
   async function handleSecondaryFrontUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    await uploadSecondary(file, setSecondaryLicenseFrontPhotoUrl, "Impossible d’uploader le recto du permis secondaire.");
+
+    await uploadSecondary(
+      file,
+      setSecondaryLicenseFrontPhotoUrl,
+      "Impossible d’uploader le recto du permis secondaire.",
+    );
   }
 
   async function handleSecondaryBackUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    await uploadSecondary(file, setSecondaryLicenseBackPhotoUrl, "Impossible d’uploader le verso du permis secondaire.");
+
+    await uploadSecondary(
+      file,
+      setSecondaryLicenseBackPhotoUrl,
+      "Impossible d’uploader le verso du permis secondaire.",
+    );
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -173,7 +192,8 @@ function ContractCreatePage() {
 
     try {
       const contract = await createContract({
-        contract_number: contractNumber.trim(),
+        contract_number: contractNumber.trim() || `TEMP-${Date.now()}`,
+
         vehicle_id: Number(vehicleId),
 
         customer_first_name: customerFirstName.trim(),
@@ -271,7 +291,6 @@ function ContractCreatePage() {
         isSubmitting={isSubmitting}
         onSubmit={handleSubmit}
         onCancel={() => navigate("/contracts")}
-        setContractNumber={setContractNumber}
         setVehicleId={setVehicleId}
         setCustomerFirstName={setCustomerFirstName}
         setCustomerLastName={setCustomerLastName}
