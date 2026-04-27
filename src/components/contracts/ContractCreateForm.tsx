@@ -106,8 +106,7 @@ function readVehicleMoney(
 
 function ContractCreateForm(props: ContractCreateFormProps) {
   const {
-    contractNumber,
-    setContractNumber,
+  
 
     vehicleId,
     vehicles,
@@ -201,12 +200,9 @@ function ContractCreateForm(props: ContractCreateFormProps) {
         <div className="contract-create-page__grid">
           <label className="contract-create-page__field">
             <span>Numéro de contrat</span>
-            <input
-              type="text"
-              value={contractNumber}
-              onChange={(event) => setContractNumber(event.target.value)}
-              required
-            />
+            <p className="contract-create-page__helper">
+  Le numéro de contrat sera généré automatiquement.
+</p>
           </label>
 
           <label className="contract-create-page__field">
