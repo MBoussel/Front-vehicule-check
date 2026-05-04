@@ -21,6 +21,7 @@ import {
 import type { RentalContract } from "../../types/contract";
 import type {
   Check,
+  CheckPhoto,
   CheckStatus,
   CheckType,
   CleanlinessLevel,
@@ -81,6 +82,18 @@ function getOtherPhotoCountFromCheck(check: Check): number {
     .length;
 }
 
+function getPhotoUrlsFromCheck(check: Check): Partial<Record<PhotoType, string>> {
+  const urls: Partial<Record<PhotoType, string>> = {};
+
+  for (const photo of check.photos ?? []) {
+    if (photo.photo_type !== "other") {
+      urls[photo.photo_type] = photo.file_url;
+    }
+  }
+
+  return urls;
+}
+
 function getNextStepIndexFromCompletedTypes(
   completedTypes: Set<PhotoType>,
 ): number {
@@ -91,6 +104,10 @@ function getNextStepIndexFromCompletedTypes(
   return nextMissingIndex === -1
     ? REQUIRED_CHECK_STEPS.length
     : nextMissingIndex;
+}
+
+function checkDateOrCreatedAt(check: Check): string | number {
+  return check.check_date ?? check.created_at ?? 0;
 }
 
 function getLatestDraftCheckForContract(
@@ -134,10 +151,6 @@ function getCompletedDepartureCheck(
   })[0] ?? null;
 }
 
-function checkDateOrCreatedAt(check: Check): string | number {
-  return check.check_date ?? check.created_at ?? 0;
-}
-
 function CheckCreatePage() {
   const { contractId } = useParams();
   const [searchParams] = useSearchParams();
@@ -164,6 +177,10 @@ function CheckCreatePage() {
     Set<PhotoType>
   >(() => new Set());
 
+  const [photoUrlsByType, setPhotoUrlsByType] = useState<
+    Partial<Record<PhotoType, string>>
+  >({});
+
   const [isCreatingCheck, setIsCreatingCheck] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [isCompletingCheck, setIsCompletingCheck] = useState(false);
@@ -186,6 +203,7 @@ function CheckCreatePage() {
         setCheckId(null);
         setStepIndex(0);
         setCompletedRequiredTypes(new Set());
+        setPhotoUrlsByType({});
 
         const numericContractId = Number(contractId);
         const contractData = await getContractById(numericContractId);
@@ -230,6 +248,7 @@ function CheckCreatePage() {
             setStatus(storedCheck.status ?? "draft");
             setOtherPhotoCount(getOtherPhotoCountFromCheck(storedCheck));
             setCompletedRequiredTypes(completedTypes);
+            setPhotoUrlsByType(getPhotoUrlsFromCheck(storedCheck));
             setStepIndex(nextIndex);
             setResumeMessage(
               `Check brouillon repris automatiquement (#${storedCheck.id}).`,
@@ -261,6 +280,7 @@ function CheckCreatePage() {
           setStatus(fullCheck.status ?? "draft");
           setOtherPhotoCount(getOtherPhotoCountFromCheck(fullCheck));
           setCompletedRequiredTypes(completedTypes);
+          setPhotoUrlsByType(getPhotoUrlsFromCheck(fullCheck));
           setStepIndex(nextIndex);
           setResumeMessage(
             `Check brouillon repris automatiquement (#${fullCheck.id}).`,
@@ -363,6 +383,7 @@ function CheckCreatePage() {
       setStepIndex(0);
       setOtherPhotoCount(0);
       setCompletedRequiredTypes(new Set());
+      setPhotoUrlsByType({});
       saveActiveCheckId(contract.id, createdCheck.id);
     } catch (error) {
       setErrorMessage(extractApiErrorMessage(error));
@@ -405,7 +426,7 @@ function CheckCreatePage() {
       const hasDamage =
         typeCheck === "return" ? true : payload.damages.length > 0;
 
-      const photo = await uploadCheckPhoto(
+      const photo: CheckPhoto = await uploadCheckPhoto(
         checkId,
         payload.file,
         currentStep.type,
@@ -417,6 +438,11 @@ function CheckCreatePage() {
       if (payload.damages.length > 0) {
         await sendDamagesForPhoto(photo.id, payload.damages);
       }
+
+      setPhotoUrlsByType((previous) => ({
+        ...previous,
+        [currentStep.type]: photo.file_url,
+      }));
 
       markRequiredStepCompleted(currentStep.type);
       saveActiveCheckId(contract.id, checkId);
@@ -440,7 +466,7 @@ function CheckCreatePage() {
     try {
       const hasDamage = payload.damages.length > 0;
 
-      const photo = await uploadCheckPhoto(
+      const photo: CheckPhoto = await uploadCheckPhoto(
         checkId,
         payload.file,
         "other",
@@ -651,21 +677,22 @@ function CheckCreatePage() {
         </form>
       ) : isOnRequiredSteps && currentStep ? (
         <div className="check-create-page__wizard">
-      <PhotoStep
-  key={`${checkId}-${stepIndex}-${currentStep.type}`}
-  label={currentStep.label}
-  hint={currentStep.hint}
-  stepNumber={stepIndex + 1}
-  totalSteps={REQUIRED_CHECK_STEPS.length}
-  checkType={typeCheck}
-  onValidate={handlePhotoValidate}
-  onNoDamage={handleNoDamageForRequiredStep}
-  onBack={goToPreviousStep}
-  canGoBack={stepIndex > 0}
-  isCompleted={completedRequiredTypes.has(currentStep.type)}
-  onContinue={goToNextStep}
-  isSubmitting={isUploadingPhoto}
-/>
+          <PhotoStep
+            key={`${checkId}-${stepIndex}-${currentStep.type}`}
+            label={currentStep.label}
+            hint={currentStep.hint}
+            stepNumber={stepIndex + 1}
+            totalSteps={REQUIRED_CHECK_STEPS.length}
+            checkType={typeCheck}
+            existingPhotoUrl={photoUrlsByType[currentStep.type]}
+            onValidate={handlePhotoValidate}
+            onNoDamage={handleNoDamageForRequiredStep}
+            onBack={goToPreviousStep}
+            canGoBack={stepIndex > 0}
+            isCompleted={completedRequiredTypes.has(currentStep.type)}
+            onContinue={goToNextStep}
+            isSubmitting={isUploadingPhoto}
+          />
 
           <div className="check-create-page__wizard-footer">
             <p className="check-create-page__wizard-progress">
@@ -691,18 +718,18 @@ function CheckCreatePage() {
           </div>
 
           <PhotoStep
-  key={`${checkId}-other-${otherPhotoCount}`}
-  label="Photo supplémentaire"
-  hint="Ajoute un détail utile : rayure, impact, accessoire, document, etc."
-  stepNumber={REQUIRED_CHECK_STEPS.length + 1}
-  totalSteps={REQUIRED_CHECK_STEPS.length + 1}
-  checkType={typeCheck}
-  onValidate={handleOtherPhotoValidate}
-  onNoDamage={() => undefined}
-  onBack={handleBackToPreviousRequiredStep}
-  canGoBack
-  isSubmitting={isUploadingPhoto}
-/>
+            key={`${checkId}-other-${otherPhotoCount}`}
+            label="Photo supplémentaire"
+            hint="Ajoute un détail utile : rayure, impact, accessoire, document, etc."
+            stepNumber={REQUIRED_CHECK_STEPS.length + 1}
+            totalSteps={REQUIRED_CHECK_STEPS.length + 1}
+            checkType={typeCheck}
+            onValidate={handleOtherPhotoValidate}
+            onNoDamage={() => undefined}
+            onBack={handleBackToPreviousRequiredStep}
+            canGoBack
+            isSubmitting={isUploadingPhoto}
+          />
 
           <div className="check-create-page__other-count">
             {otherPhotoCount > 0
