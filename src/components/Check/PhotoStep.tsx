@@ -12,6 +12,11 @@ interface PhotoStepProps {
     file: File;
     damages: DamagePoint[];
   }) => Promise<void>;
+  onNoDamage: () => void | Promise<void>;
+  onBack?: () => void;
+  canGoBack?: boolean;
+  isCompleted?: boolean;
+  onContinue?: () => void;
   isSubmitting: boolean;
 }
 
@@ -25,11 +30,17 @@ function PhotoStep({
   stepNumber,
   totalSteps,
   onValidate,
+  onNoDamage,
+  onBack,
+  canGoBack = false,
+  isCompleted = false,
+  onContinue,
   isSubmitting,
 }: PhotoStepProps) {
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
 
+  const [hasDamage, setHasDamage] = useState<boolean | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [damages, setDamages] = useState<DamagePoint[]>([]);
@@ -44,6 +55,7 @@ function PhotoStep({
   function resetAll() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
 
+    setHasDamage(null);
     setSelectedFile(null);
     setPreviewUrl(null);
     setDamages([]);
@@ -101,6 +113,11 @@ function PhotoStep({
     resetAll();
   }
 
+  async function handleNoDamage() {
+    await onNoDamage();
+    resetAll();
+  }
+
   const cameraInputId = `camera-input-${stepNumber}`;
   const galleryInputId = `gallery-input-${stepNumber}`;
 
@@ -114,7 +131,77 @@ function PhotoStep({
         <p className="photo-step__hint">{hint}</p>
       </header>
 
-      {!previewUrl ? (
+      {isCompleted ? (
+        <div className="photo-step__annotator-block">
+          <p className="photo-step__hint">
+            Cette étape est déjà validée. Tu peux revenir en arrière sans refaire la photo.
+          </p>
+
+          <div className="photo-step__buttons">
+            {canGoBack && onBack ? (
+              <button
+                type="button"
+                className="photo-step__secondary-button"
+                onClick={onBack}
+                disabled={isSubmitting}
+              >
+                Retour
+              </button>
+            ) : null}
+
+            {onContinue ? (
+              <button
+                type="button"
+                className="photo-step__primary-button"
+                onClick={onContinue}
+                disabled={isSubmitting}
+              >
+                Continuer
+              </button>
+            ) : null}
+
+            <button
+              type="button"
+              className="photo-step__secondary-button"
+              onClick={() => setHasDamage(true)}
+              disabled={isSubmitting}
+            >
+              Ajouter / remplacer une photo
+            </button>
+          </div>
+        </div>
+      ) : hasDamage === null ? (
+        <div className="photo-step__buttons">
+          <button
+            type="button"
+            className="photo-step__secondary-button"
+            onClick={handleNoDamage}
+            disabled={isSubmitting}
+          >
+            Aucun dégât
+          </button>
+
+          <button
+            type="button"
+            className="photo-step__primary-button"
+            onClick={() => setHasDamage(true)}
+            disabled={isSubmitting}
+          >
+            Signaler un dégât
+          </button>
+
+          {canGoBack && onBack ? (
+            <button
+              type="button"
+              className="photo-step__secondary-button"
+              onClick={onBack}
+              disabled={isSubmitting}
+            >
+              Retour
+            </button>
+          ) : null}
+        </div>
+      ) : !previewUrl ? (
         <div className="photo-step__buttons">
           <label htmlFor={cameraInputId} className="photo-step__primary-button">
             Prendre une photo
@@ -123,6 +210,15 @@ function PhotoStep({
           <label htmlFor={galleryInputId} className="photo-step__secondary-button">
             Choisir depuis la galerie
           </label>
+
+          <button
+            type="button"
+            className="photo-step__secondary-button"
+            onClick={() => setHasDamage(null)}
+            disabled={isSubmitting}
+          >
+            Retour au choix
+          </button>
         </div>
       ) : (
         <div className="photo-step__annotator-block">

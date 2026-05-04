@@ -10,7 +10,11 @@ export type FuelLevel =
   | "seven_eighths"
   | "full";
 
-export type CleanlinessLevel = "very_clean" | "clean" | "medium" | "dirty";
+export type CleanlinessLevel =
+  | "very_clean"
+  | "clean"
+  | "medium"
+  | "dirty";
 
 export type CheckStatus = "draft" | "completed";
 
@@ -79,13 +83,16 @@ export interface Check {
   photos?: CheckPhoto[];
 }
 
-export interface CreateCheckPayload {
+
+export type CreateCheckPayload = {
   vehicle_id: number;
-  contract_id: number | null;
+  contract_id?: number | null;
   type_check: CheckType;
   mileage: number;
   fuel_level: FuelLevel;
   cleanliness: CleanlinessLevel;
   notes?: string;
-  status: CheckStatus;
-}
+  booking_reference?: string;
+  client_name?: string;
+  status?: CheckStatus;
+};
