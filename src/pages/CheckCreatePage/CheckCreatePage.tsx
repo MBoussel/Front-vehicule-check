@@ -651,21 +651,21 @@ function CheckCreatePage() {
         </form>
       ) : isOnRequiredSteps && currentStep ? (
         <div className="check-create-page__wizard">
-          <PhotoStep
-            key={`${checkId}-${stepIndex}-${currentStep.type}`}
-            label={currentStep.label}
-            hint={currentStep.hint}
-            stepNumber={stepIndex + 1}
-            totalSteps={REQUIRED_CHECK_STEPS.length}
-            checkType={typeCheck}
-            onValidate={handlePhotoValidate}
-            onNoDamage={handleNoDamageForRequiredStep}
-            onBack={goToPreviousStep}
-            canGoBack={stepIndex > 0}
-            isCompleted={completedRequiredTypes.has(currentStep.type)}
-            onContinue={goToNextStep}
-            isSubmitting={isUploadingPhoto}
-          />
+      <PhotoStep
+  key={`${checkId}-${stepIndex}-${currentStep.type}`}
+  label={currentStep.label}
+  hint={currentStep.hint}
+  stepNumber={stepIndex + 1}
+  totalSteps={REQUIRED_CHECK_STEPS.length}
+  checkType={typeCheck}
+  onValidate={handlePhotoValidate}
+  onNoDamage={handleNoDamageForRequiredStep}
+  onBack={goToPreviousStep}
+  canGoBack={stepIndex > 0}
+  isCompleted={completedRequiredTypes.has(currentStep.type)}
+  onContinue={goToNextStep}
+  isSubmitting={isUploadingPhoto}
+/>
 
           <div className="check-create-page__wizard-footer">
             <p className="check-create-page__wizard-progress">
@@ -691,18 +691,18 @@ function CheckCreatePage() {
           </div>
 
           <PhotoStep
-            key={`${checkId}-other-${otherPhotoCount}`}
-            label="Photo supplémentaire"
-            hint="Ajoute un détail utile : rayure, impact, accessoire, document, etc."
-            stepNumber={REQUIRED_CHECK_STEPS.length + 1}
-            totalSteps={REQUIRED_CHECK_STEPS.length + 1}
-            checkType={typeCheck}
-            onValidate={handleOtherPhotoValidate}
-            onNoDamage={() => undefined}
-            onBack={handleBackToPreviousRequiredStep}
-            canGoBack
-            isSubmitting={isUploadingPhoto}
-          />
+  key={`${checkId}-other-${otherPhotoCount}`}
+  label="Photo supplémentaire"
+  hint="Ajoute un détail utile : rayure, impact, accessoire, document, etc."
+  stepNumber={REQUIRED_CHECK_STEPS.length + 1}
+  totalSteps={REQUIRED_CHECK_STEPS.length + 1}
+  checkType={typeCheck}
+  onValidate={handleOtherPhotoValidate}
+  onNoDamage={() => undefined}
+  onBack={handleBackToPreviousRequiredStep}
+  canGoBack
+  isSubmitting={isUploadingPhoto}
+/>
 
           <div className="check-create-page__other-count">
             {otherPhotoCount > 0

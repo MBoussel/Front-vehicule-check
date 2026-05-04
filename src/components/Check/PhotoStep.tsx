@@ -22,7 +22,6 @@ interface Props {
   onBack: () => void;
   canGoBack: boolean;
 
-  // 🔥 compat avec ton code actuel
   isCompleted?: boolean;
   onContinue?: () => void;
 
@@ -47,7 +46,7 @@ export default function PhotoStep({
 
   const [file, setFile] = useState<File | null>(null);
 
-  // 🔄 uniquement pour RETURN
+  // 🔥 uniquement pour RETURN
   const [hasDamage, setHasDamage] = useState<boolean | null>(null);
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -82,69 +81,8 @@ export default function PhotoStep({
         {hint && <p className="photo-step__hint">{hint}</p>}
       </div>
 
-      {/* 🔄 RETURN → choix dégâts */}
-      {checkType === "return" && hasDamage === null && (
-        <div className="photo-step__buttons">
-          <button
-            className="photo-step__primary-button"
-            onClick={() => setHasDamage(true)}
-          >
-            Oui, il y a des dégâts
-          </button>
-
-          <button
-            className="photo-step__secondary-button"
-            onClick={() => {
-              setHasDamage(false);
-              onNoDamage?.();
-            }}
-          >
-            Non, aucun dégât
-          </button>
-        </div>
-      )}
-
-      {/* 📸 PHOTO FLOW */}
-      {(checkType === "departure" || hasDamage) && (
-        <div className="photo-step__buttons">
-          <button
-            className="photo-step__primary-button"
-            onClick={openFilePicker}
-            disabled={isSubmitting}
-          >
-            Prendre une photo
-          </button>
-
-          <button
-            className="photo-step__secondary-button"
-            onClick={openFilePicker}
-            disabled={isSubmitting}
-          >
-            Choisir depuis la galerie
-          </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="photo-step__file-input"
-            onChange={handleFileSelect}
-          />
-
-          {file && (
-            <button
-              className="photo-step__primary-button"
-              onClick={handleValidate}
-              disabled={isSubmitting}
-            >
-              Valider la photo
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* ✅ STEP DÉJÀ VALIDÉ */}
-      {isCompleted && onContinue && (
+      {/* ✅ STEP DÉJÀ FAIT → bouton continuer */}
+      {isCompleted && onContinue ? (
         <div className="photo-step__buttons">
           <button
             className="photo-step__primary-button"
@@ -153,20 +91,98 @@ export default function PhotoStep({
           >
             Continuer
           </button>
-        </div>
-      )}
 
-      {/* 🔙 NAVIGATION */}
-      <div className="photo-step__buttons">
-        {canGoBack && (
-          <button
-            className="photo-step__secondary-button"
-            onClick={onBack}
-          >
-            Retour
-          </button>
-        )}
-      </div>
+          {canGoBack && (
+            <button
+              className="photo-step__secondary-button"
+              onClick={onBack}
+            >
+              Retour
+            </button>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* 🔄 FLOW RETURN */}
+          {checkType === "return" && hasDamage === null && (
+            <div className="photo-step__buttons">
+              <button
+                className="photo-step__primary-button"
+                onClick={() => setHasDamage(true)}
+              >
+                Oui, il y a des dégâts
+              </button>
+
+              <button
+                className="photo-step__secondary-button"
+                onClick={() => {
+                  setHasDamage(false);
+                  onNoDamage?.();
+                }}
+              >
+                Non, aucun dégât
+              </button>
+
+              {canGoBack && (
+                <button
+                  className="photo-step__secondary-button"
+                  onClick={onBack}
+                >
+                  Retour
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* 📸 FLOW PHOTO */}
+          {(checkType === "departure" || hasDamage) && (
+            <div className="photo-step__buttons">
+              <button
+                className="photo-step__primary-button"
+                onClick={openFilePicker}
+                disabled={isSubmitting}
+              >
+                Prendre une photo
+              </button>
+
+              <button
+                className="photo-step__secondary-button"
+                onClick={openFilePicker}
+                disabled={isSubmitting}
+              >
+                Choisir depuis la galerie
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="photo-step__file-input"
+                onChange={handleFileSelect}
+              />
+
+              {file && (
+                <button
+                  className="photo-step__primary-button"
+                  onClick={handleValidate}
+                  disabled={isSubmitting}
+                >
+                  Valider la photo
+                </button>
+              )}
+
+              {canGoBack && (
+                <button
+                  className="photo-step__secondary-button"
+                  onClick={onBack}
+                >
+                  Retour
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
