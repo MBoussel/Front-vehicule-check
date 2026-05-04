@@ -31,16 +31,35 @@ import type { DamagePoint } from "../../types/checkDamage";
 
 import "./CheckCreatePage.css";
 
-function extractApiErrorMessage(error: any): string {
-  const detail = error?.response?.data?.detail;
+type ApiValidationErrorItem = {
+  loc?: unknown;
+  msg?: unknown;
+};
+
+type ApiError = {
+  response?: {
+    data?: {
+      detail?: unknown;
+    };
+  };
+};
+
+function extractApiErrorMessage(error: unknown): string {
+  const apiError = error as ApiError;
+  const detail = apiError.response?.data?.detail;
 
   if (typeof detail === "string") return detail;
 
   if (Array.isArray(detail) && detail.length > 0) {
     return detail
-      .map((item) => {
-        const location = Array.isArray(item?.loc) ? item.loc.join(" > ") : "body";
-        const message = item?.msg ?? "Erreur de validation";
+      .map((item: ApiValidationErrorItem) => {
+        const location = Array.isArray(item.loc)
+          ? item.loc.join(" > ")
+          : "body";
+
+        const message =
+          typeof item.msg === "string" ? item.msg : "Erreur de validation";
+
         return `${location}: ${message}`;
       })
       .join(" | ");
@@ -238,7 +257,7 @@ function CheckCreatePage() {
     }
 
     void loadContractAndResolveCheck();
-  }, [contractId, navigate, requestedType]);
+  }, [contractId, requestedType]);
 
   const isOnRequiredSteps = stepIndex < REQUIRED_CHECK_STEPS.length;
 
@@ -326,7 +345,7 @@ function CheckCreatePage() {
       setOtherPhotoCount(0);
       setCompletedRequiredTypes(new Set());
       saveActiveCheckId(contract.id, createdCheck.id);
-    } catch (error: any) {
+    } catch (error) {
       setErrorMessage(extractApiErrorMessage(error));
     } finally {
       setIsCreatingCheck(false);
@@ -343,6 +362,12 @@ function CheckCreatePage() {
     if (!currentStep || !contract || !checkId) return;
 
     setErrorMessage("");
+
+    if (typeCheck === "departure") {
+      setErrorMessage("Photo obligatoire pour un check de départ.");
+      return;
+    }
+
     markRequiredStepCompleted(currentStep.type);
     saveActiveCheckId(contract.id, checkId);
     goToNextStep();
@@ -358,21 +383,25 @@ function CheckCreatePage() {
     setIsUploadingPhoto(true);
 
     try {
+      const hasDamage = payload.damages.length > 0;
+
       const photo = await uploadCheckPhoto(
         checkId,
         payload.file,
         currentStep.type,
         stepIndex + 1,
-        true,
-        undefined,
+        hasDamage,
+        hasDamage ? "Photo avec dégât" : undefined,
       );
 
-      await sendDamagesForPhoto(photo.id, payload.damages);
+      if (hasDamage) {
+        await sendDamagesForPhoto(photo.id, payload.damages);
+      }
 
       markRequiredStepCompleted(currentStep.type);
       saveActiveCheckId(contract.id, checkId);
       goToNextStep();
-    } catch (error: any) {
+    } catch (error) {
       setErrorMessage(extractApiErrorMessage(error));
     } finally {
       setIsUploadingPhoto(false);
@@ -389,20 +418,24 @@ function CheckCreatePage() {
     setIsUploadingPhoto(true);
 
     try {
+      const hasDamage = payload.damages.length > 0;
+
       const photo = await uploadCheckPhoto(
         checkId,
         payload.file,
-        "other" as PhotoType,
+        "other",
         REQUIRED_CHECK_STEPS.length + otherPhotoCount + 1,
-        payload.damages.length > 0,
-        payload.damages.length > 0 ? "Photo supplémentaire avec dégât" : undefined,
+        hasDamage,
+        hasDamage ? "Photo supplémentaire avec dégât" : undefined,
       );
 
-      await sendDamagesForPhoto(photo.id, payload.damages);
+      if (hasDamage) {
+        await sendDamagesForPhoto(photo.id, payload.damages);
+      }
 
       saveActiveCheckId(contract.id, checkId);
       setOtherPhotoCount((previous) => previous + 1);
-    } catch (error: any) {
+    } catch (error) {
       setErrorMessage(extractApiErrorMessage(error));
     } finally {
       setIsUploadingPhoto(false);
@@ -422,7 +455,7 @@ function CheckCreatePage() {
       await completeCheck(checkId);
       removeActiveCheckId(contract.id);
       navigate(`/checks/${checkId}`);
-    } catch (error: any) {
+    } catch (error) {
       setErrorMessage(extractApiErrorMessage(error));
     } finally {
       setIsCompletingCheck(false);
