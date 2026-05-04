@@ -77,6 +77,9 @@ export default function PhotoStep({
         </p>
 
         <h3 className="photo-step__title">{label}</h3>
+        <p style={{ color: "red", fontWeight: "bold" }}>
+  DEBUG PhotoStep — checkType = {checkType}
+</p>
 
         {hint && <p className="photo-step__hint">{hint}</p>}
       </div>
