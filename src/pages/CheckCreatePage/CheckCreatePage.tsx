@@ -93,6 +93,41 @@ function getPhotoUrlsFromCheck(check: Check): Partial<Record<PhotoType, string>>
 
   return urls;
 }
+function normalizeSeverity(
+  severity: string | null | undefined,
+): DamagePoint["severity"] {
+  if (severity === "light") return "light";
+  if (severity === "medium") return "medium";
+  if (severity === "heavy") return "heavy";
+
+  if (severity === "minor") return "light";
+  if (severity === "moderate") return "medium";
+  if (severity === "severe") return "heavy";
+
+  return "light";
+}
+function getDamagesFromCheck(
+  check: Check,
+): Partial<Record<PhotoType, DamagePoint[]>> {
+  const result: Partial<Record<PhotoType, DamagePoint[]>> = {};
+
+  for (const photo of check.photos ?? []) {
+    if (photo.photo_type === "other") continue;
+
+    result[photo.photo_type] = (photo.damages ?? []).map((damage) => ({
+      id: String(damage.id),
+      xPercent: damage.x_percent,
+      yPercent: damage.y_percent,
+      label: damage.comment ?? "Dégât",
+      type: damage.damage_type ?? "other",
+      severity: normalizeSeverity(damage.severity),
+      comment: damage.comment ?? "",
+      createdAt: damage.created_at ?? new Date().toISOString(),
+    }));
+  }
+
+  return result;
+}
 
 function getNextStepIndexFromCompletedTypes(
   completedTypes: Set<PhotoType>,
@@ -181,6 +216,10 @@ function CheckCreatePage() {
     Partial<Record<PhotoType, string>>
   >({});
 
+  const [damagesByType, setDamagesByType] = useState<
+    Partial<Record<PhotoType, DamagePoint[]>>
+  >({});
+
   const [isCreatingCheck, setIsCreatingCheck] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [isCompletingCheck, setIsCompletingCheck] = useState(false);
@@ -204,6 +243,7 @@ function CheckCreatePage() {
         setStepIndex(0);
         setCompletedRequiredTypes(new Set());
         setPhotoUrlsByType({});
+        setDamagesByType({});
 
         const numericContractId = Number(contractId);
         const contractData = await getContractById(numericContractId);
@@ -249,14 +289,15 @@ function CheckCreatePage() {
             setOtherPhotoCount(getOtherPhotoCountFromCheck(storedCheck));
             setCompletedRequiredTypes(completedTypes);
             setPhotoUrlsByType(getPhotoUrlsFromCheck(storedCheck));
+            setDamagesByType(getDamagesFromCheck(storedCheck));
             setStepIndex(nextIndex);
             setResumeMessage(
               `Check brouillon repris automatiquement (#${storedCheck.id}).`,
             );
             return;
-          } else {
-            removeActiveCheckId(numericContractId);
           }
+
+          removeActiveCheckId(numericContractId);
         }
 
         const latestDraftCheck = getLatestDraftCheckForContract(
@@ -281,6 +322,7 @@ function CheckCreatePage() {
           setOtherPhotoCount(getOtherPhotoCountFromCheck(fullCheck));
           setCompletedRequiredTypes(completedTypes);
           setPhotoUrlsByType(getPhotoUrlsFromCheck(fullCheck));
+          setDamagesByType(getDamagesFromCheck(fullCheck));
           setStepIndex(nextIndex);
           setResumeMessage(
             `Check brouillon repris automatiquement (#${fullCheck.id}).`,
@@ -384,6 +426,7 @@ function CheckCreatePage() {
       setOtherPhotoCount(0);
       setCompletedRequiredTypes(new Set());
       setPhotoUrlsByType({});
+      setDamagesByType({});
       saveActiveCheckId(contract.id, createdCheck.id);
     } catch (error) {
       setErrorMessage(extractApiErrorMessage(error));
@@ -442,6 +485,11 @@ function CheckCreatePage() {
       setPhotoUrlsByType((previous) => ({
         ...previous,
         [currentStep.type]: photo.file_url,
+      }));
+
+      setDamagesByType((previous) => ({
+        ...previous,
+        [currentStep.type]: payload.damages,
       }));
 
       markRequiredStepCompleted(currentStep.type);
@@ -685,6 +733,7 @@ function CheckCreatePage() {
             totalSteps={REQUIRED_CHECK_STEPS.length}
             checkType={typeCheck}
             existingPhotoUrl={photoUrlsByType[currentStep.type]}
+            existingDamages={damagesByType[currentStep.type] ?? []}
             onValidate={handlePhotoValidate}
             onNoDamage={handleNoDamageForRequiredStep}
             onBack={goToPreviousStep}

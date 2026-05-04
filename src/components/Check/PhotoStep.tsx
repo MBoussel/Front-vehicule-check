@@ -11,6 +11,7 @@ interface PhotoStepProps {
   totalSteps: number;
   checkType: CheckType;
   existingPhotoUrl?: string;
+  existingDamages?: DamagePoint[];
   onValidate: (payload: {
     file: File;
     damages: DamagePoint[];
@@ -27,6 +28,19 @@ function generateDamageId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function toDamagePoint(payload: CreateDamagePayload): DamagePoint {
+  return {
+    id: generateDamageId(),
+    xPercent: payload.xPercent,
+    yPercent: payload.yPercent,
+    label: payload.label,
+    type: payload.type,
+    severity: payload.severity,
+    comment: payload.comment,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 function PhotoStep({
   label,
   hint,
@@ -34,6 +48,7 @@ function PhotoStep({
   totalSteps,
   checkType,
   existingPhotoUrl,
+  existingDamages = [],
   onValidate,
   onNoDamage,
   onBack,
@@ -104,16 +119,7 @@ function PhotoStep({
   }
 
   function handleAddDamage(payload: CreateDamagePayload) {
-    const newDamage: DamagePoint = {
-      id: generateDamageId(),
-      xPercent: payload.xPercent,
-      yPercent: payload.yPercent,
-      label: payload.label,
-      type: payload.type,
-      severity: payload.severity,
-      comment: payload.comment,
-      createdAt: new Date().toISOString(),
-    };
+    const newDamage = toDamagePoint(payload);
 
     setDamages((current) => [...current, newDamage]);
     setSelectedDamageId(newDamage.id);
@@ -164,19 +170,19 @@ function PhotoStep({
 
       {shouldShowCompletedView ? (
         <div className="photo-step__annotator-block">
-          <p className="photo-step__hint">
-            Cette étape est déjà validée.
-          </p>
+          <p className="photo-step__hint">Cette étape est déjà validée.</p>
 
           {existingPhotoUrl ? (
-            <img
-              src={existingPhotoUrl}
-              alt={label}
-              style={{
-                width: "100%",
-                borderRadius: "16px",
-                objectFit: "cover",
-              }}
+            <DamagePhotoAnnotator
+              imageUrl={existingPhotoUrl}
+              imageAlt={label}
+              damages={existingDamages}
+              selectedDamageId={selectedDamageId}
+              onSelectDamage={setSelectedDamageId}
+              onAddDamage={() => undefined}
+              onDeleteDamage={() => undefined}
+              disabled
+              loading={false}
             />
           ) : (
             <p className="photo-step__hint">
