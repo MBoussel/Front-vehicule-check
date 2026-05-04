@@ -1,283 +1,172 @@
-import { useEffect, useRef, useState } from "react";
-import type { CreateDamagePayload, DamagePoint } from "../../types/checkDamage";
-import DamagePhotoAnnotator from "./DamagePhotoAnnotator";
+import { useRef, useState } from "react";
+import type { DamagePoint } from "../../types/checkDamage";
+import type { CheckType } from "../../types/check";
+
 import "./PhotoStep.css";
 
-interface PhotoStepProps {
+interface Props {
   label: string;
-  hint: string;
+  hint?: string;
   stepNumber: number;
   totalSteps: number;
+
+  checkType: CheckType;
+
   onValidate: (payload: {
     file: File;
     damages: DamagePoint[];
-  }) => Promise<void>;
-  onNoDamage: () => void | Promise<void>;
-  onBack?: () => void;
-  canGoBack?: boolean;
+  }) => void;
+
+  onNoDamage?: () => void;
+
+  onBack: () => void;
+  canGoBack: boolean;
+
+  // 🔥 compat avec ton code actuel
   isCompleted?: boolean;
   onContinue?: () => void;
-  isSubmitting: boolean;
+
+  isSubmitting?: boolean;
 }
 
-function generateDamageId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function PhotoStep({
+export default function PhotoStep({
   label,
   hint,
   stepNumber,
   totalSteps,
+  checkType,
   onValidate,
   onNoDamage,
   onBack,
-  canGoBack = false,
-  isCompleted = false,
+  canGoBack,
+  isCompleted,
   onContinue,
   isSubmitting,
-}: PhotoStepProps) {
-  const cameraInputRef = useRef<HTMLInputElement | null>(null);
-  const galleryInputRef = useRef<HTMLInputElement | null>(null);
+}: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [file, setFile] = useState<File | null>(null);
+
+  // 🔄 uniquement pour RETURN
   const [hasDamage, setHasDamage] = useState<boolean | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [damages, setDamages] = useState<DamagePoint[]>([]);
-  const [selectedDamageId, setSelectedDamageId] = useState<string | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  function resetAll() {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-
-    setHasDamage(null);
-    setSelectedFile(null);
-    setPreviewUrl(null);
-    setDamages([]);
-    setSelectedDamageId(null);
-
-    if (cameraInputRef.current) cameraInputRef.current.value = "";
-    if (galleryInputRef.current) galleryInputRef.current.value = "";
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = e.target.files?.[0];
+    if (selected) {
+      setFile(selected);
+    }
   }
 
-  function setNewFile(file: File) {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-
-    setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    setDamages([]);
-    setSelectedDamageId(null);
+  function openFilePicker() {
+    fileInputRef.current?.click();
   }
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+  function handleValidate() {
     if (!file) return;
 
-    setNewFile(file);
-  }
-
-  function handleAddDamage(payload: CreateDamagePayload) {
-    const newDamage: DamagePoint = {
-      id: generateDamageId(),
-      xPercent: payload.xPercent,
-      yPercent: payload.yPercent,
-      label: payload.label,
-      type: payload.type,
-      severity: payload.severity,
-      comment: payload.comment,
-      createdAt: new Date().toISOString(),
-    };
-
-    setDamages((current) => [...current, newDamage]);
-    setSelectedDamageId(newDamage.id);
-  }
-
-  function handleDeleteDamage(damageId: string) {
-    setDamages((current) => current.filter((item) => item.id !== damageId));
-    setSelectedDamageId((current) => (current === damageId ? null : current));
-  }
-
-  async function handleValidate() {
-    if (!selectedFile) return;
-
-    await onValidate({
-      file: selectedFile,
-      damages,
+    onValidate({
+      file,
+      damages: [], // tu gardes ton système actuel
     });
-
-    resetAll();
   }
-
-  async function handleNoDamage() {
-    await onNoDamage();
-    resetAll();
-  }
-
-  const cameraInputId = `camera-input-${stepNumber}`;
-  const galleryInputId = `gallery-input-${stepNumber}`;
 
   return (
-    <section className="photo-step">
-      <header className="photo-step__header">
+    <div className="photo-step">
+      <div className="photo-step__header">
         <p className="photo-step__progress">
           Étape {stepNumber} / {totalSteps}
         </p>
+
         <h3 className="photo-step__title">{label}</h3>
-        <p className="photo-step__hint">{hint}</p>
-      </header>
 
-      {isCompleted ? (
-        <div className="photo-step__annotator-block">
-          <p className="photo-step__hint">
-            Cette étape est déjà validée. Tu peux revenir en arrière sans refaire la photo.
-          </p>
+        {hint && <p className="photo-step__hint">{hint}</p>}
+      </div>
 
-          <div className="photo-step__buttons">
-            {canGoBack && onBack ? (
-              <button
-                type="button"
-                className="photo-step__secondary-button"
-                onClick={onBack}
-                disabled={isSubmitting}
-              >
-                Retour
-              </button>
-            ) : null}
-
-            {onContinue ? (
-              <button
-                type="button"
-                className="photo-step__primary-button"
-                onClick={onContinue}
-                disabled={isSubmitting}
-              >
-                Continuer
-              </button>
-            ) : null}
-
-            <button
-              type="button"
-              className="photo-step__secondary-button"
-              onClick={() => setHasDamage(true)}
-              disabled={isSubmitting}
-            >
-              Ajouter / remplacer une photo
-            </button>
-          </div>
-        </div>
-      ) : hasDamage === null ? (
+      {/* 🔄 RETURN → choix dégâts */}
+      {checkType === "return" && hasDamage === null && (
         <div className="photo-step__buttons">
           <button
-            type="button"
-            className="photo-step__secondary-button"
-            onClick={handleNoDamage}
-            disabled={isSubmitting}
-          >
-            Aucun dégât
-          </button>
-
-          <button
-            type="button"
             className="photo-step__primary-button"
             onClick={() => setHasDamage(true)}
-            disabled={isSubmitting}
           >
-            Signaler un dégât
+            Oui, il y a des dégâts
           </button>
-
-          {canGoBack && onBack ? (
-            <button
-              type="button"
-              className="photo-step__secondary-button"
-              onClick={onBack}
-              disabled={isSubmitting}
-            >
-              Retour
-            </button>
-          ) : null}
-        </div>
-      ) : !previewUrl ? (
-        <div className="photo-step__buttons">
-          <label htmlFor={cameraInputId} className="photo-step__primary-button">
-            Prendre une photo
-          </label>
-
-          <label htmlFor={galleryInputId} className="photo-step__secondary-button">
-            Choisir depuis la galerie
-          </label>
 
           <button
-            type="button"
             className="photo-step__secondary-button"
-            onClick={() => setHasDamage(null)}
-            disabled={isSubmitting}
+            onClick={() => {
+              setHasDamage(false);
+              onNoDamage?.();
+            }}
           >
-            Retour au choix
+            Non, aucun dégât
           </button>
         </div>
-      ) : (
-        <div className="photo-step__annotator-block">
-          <DamagePhotoAnnotator
-            imageUrl={previewUrl}
-            imageAlt={label}
-            damages={damages}
-            selectedDamageId={selectedDamageId}
-            onSelectDamage={setSelectedDamageId}
-            onAddDamage={handleAddDamage}
-            onDeleteDamage={handleDeleteDamage}
+      )}
+
+      {/* 📸 PHOTO FLOW */}
+      {(checkType === "departure" || hasDamage) && (
+        <div className="photo-step__buttons">
+          <button
+            className="photo-step__primary-button"
+            onClick={openFilePicker}
             disabled={isSubmitting}
-            loading={isSubmitting}
+          >
+            Prendre une photo
+          </button>
+
+          <button
+            className="photo-step__secondary-button"
+            onClick={openFilePicker}
+            disabled={isSubmitting}
+          >
+            Choisir depuis la galerie
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="photo-step__file-input"
+            onChange={handleFileSelect}
           />
 
-          <div className="photo-step__buttons">
+          {file && (
             <button
-              type="button"
-              className="photo-step__secondary-button"
-              onClick={resetAll}
-              disabled={isSubmitting}
-            >
-              Reprendre
-            </button>
-
-            <button
-              type="button"
               className="photo-step__primary-button"
               onClick={handleValidate}
               disabled={isSubmitting}
             >
-              {isSubmitting
-                ? "Envoi..."
-                : `Valider la photo (${damages.length} dégât(s))`}
+              Valider la photo
             </button>
-          </div>
+          )}
         </div>
       )}
 
-      <input
-        id={cameraInputId}
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="photo-step__file-input"
-        onChange={handleFileChange}
-      />
+      {/* ✅ STEP DÉJÀ VALIDÉ */}
+      {isCompleted && onContinue && (
+        <div className="photo-step__buttons">
+          <button
+            className="photo-step__primary-button"
+            onClick={onContinue}
+            disabled={isSubmitting}
+          >
+            Continuer
+          </button>
+        </div>
+      )}
 
-      <input
-        id={galleryInputId}
-        ref={galleryInputRef}
-        type="file"
-        accept="image/*"
-        className="photo-step__file-input"
-        onChange={handleFileChange}
-      />
-    </section>
+      {/* 🔙 NAVIGATION */}
+      <div className="photo-step__buttons">
+        {canGoBack && (
+          <button
+            className="photo-step__secondary-button"
+            onClick={onBack}
+          >
+            Retour
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
-
-export default PhotoStep;

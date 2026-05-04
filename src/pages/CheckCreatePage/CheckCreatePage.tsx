@@ -77,15 +77,20 @@ function getCompletedPhotoTypesFromCheck(check: Check): Set<PhotoType> {
 }
 
 function getOtherPhotoCountFromCheck(check: Check): number {
-  return (check.photos ?? []).filter((photo) => photo.photo_type === "other").length;
+  return (check.photos ?? []).filter((photo) => photo.photo_type === "other")
+    .length;
 }
 
-function getNextStepIndexFromCompletedTypes(completedTypes: Set<PhotoType>): number {
+function getNextStepIndexFromCompletedTypes(
+  completedTypes: Set<PhotoType>,
+): number {
   const nextMissingIndex = REQUIRED_CHECK_STEPS.findIndex(
     (step) => !completedTypes.has(step.type),
   );
 
-  return nextMissingIndex === -1 ? REQUIRED_CHECK_STEPS.length : nextMissingIndex;
+  return nextMissingIndex === -1
+    ? REQUIRED_CHECK_STEPS.length
+    : nextMissingIndex;
 }
 
 function getLatestDraftCheckForContract(
@@ -103,13 +108,16 @@ function getLatestDraftCheckForContract(
   if (matchingChecks.length === 0) return null;
 
   return [...matchingChecks].sort((a, b) => {
-    const dateA = new Date(a.check_date ?? a.created_at ?? 0).getTime();
-    const dateB = new Date(b.check_date ?? b.created_at ?? 0).getTime();
+    const dateA = new Date(checkDateOrCreatedAt(a)).getTime();
+    const dateB = new Date(checkDateOrCreatedAt(b)).getTime();
     return dateB - dateA;
   })[0] ?? null;
 }
 
-function getCompletedDepartureCheck(checks: Check[], contractId: number): Check | null {
+function getCompletedDepartureCheck(
+  checks: Check[],
+  contractId: number,
+): Check | null {
   const matchingChecks = checks.filter(
     (check) =>
       check.contract_id === contractId &&
@@ -120,10 +128,14 @@ function getCompletedDepartureCheck(checks: Check[], contractId: number): Check 
   if (matchingChecks.length === 0) return null;
 
   return [...matchingChecks].sort((a, b) => {
-    const dateA = new Date(a.check_date ?? a.created_at ?? 0).getTime();
-    const dateB = new Date(b.check_date ?? b.created_at ?? 0).getTime();
+    const dateA = new Date(checkDateOrCreatedAt(a)).getTime();
+    const dateB = new Date(checkDateOrCreatedAt(b)).getTime();
     return dateB - dateA;
   })[0] ?? null;
+}
+
+function checkDateOrCreatedAt(check: Check): string | number {
+  return check.check_date ?? check.created_at ?? 0;
 }
 
 function CheckCreatePage() {
@@ -141,15 +153,16 @@ function CheckCreatePage() {
   const [mileage, setMileage] = useState("");
   const [departureMileage, setDepartureMileage] = useState<number | null>(null);
   const [fuelLevel, setFuelLevel] = useState<FuelLevel>("half");
-  const [cleanliness, setCleanliness] = useState<CleanlinessLevel>("clean");
+  const [cleanliness, setCleanliness] =
+    useState<CleanlinessLevel>("clean");
   const [notes, setNotes] = useState("");
   const [, setStatus] = useState<CheckStatus>("draft");
 
   const [checkId, setCheckId] = useState<number | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
-  const [completedRequiredTypes, setCompletedRequiredTypes] = useState<Set<PhotoType>>(
-    () => new Set(),
-  );
+  const [completedRequiredTypes, setCompletedRequiredTypes] = useState<
+    Set<PhotoType>
+  >(() => new Set());
 
   const [isCreatingCheck, setIsCreatingCheck] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
@@ -218,7 +231,9 @@ function CheckCreatePage() {
             setOtherPhotoCount(getOtherPhotoCountFromCheck(storedCheck));
             setCompletedRequiredTypes(completedTypes);
             setStepIndex(nextIndex);
-            setResumeMessage(`Check brouillon repris automatiquement (#${storedCheck.id}).`);
+            setResumeMessage(
+              `Check brouillon repris automatiquement (#${storedCheck.id}).`,
+            );
             return;
           } else {
             removeActiveCheckId(numericContractId);
@@ -247,7 +262,9 @@ function CheckCreatePage() {
           setOtherPhotoCount(getOtherPhotoCountFromCheck(fullCheck));
           setCompletedRequiredTypes(completedTypes);
           setStepIndex(nextIndex);
-          setResumeMessage(`Check brouillon repris automatiquement (#${fullCheck.id}).`);
+          setResumeMessage(
+            `Check brouillon repris automatiquement (#${fullCheck.id}).`,
+          );
         }
       } catch {
         setErrorMessage("Impossible de charger le contrat ou le check en cours.");
@@ -285,7 +302,9 @@ function CheckCreatePage() {
   }
 
   function goToNextStep() {
-    setStepIndex((previous) => Math.min(previous + 1, REQUIRED_CHECK_STEPS.length));
+    setStepIndex((previous) =>
+      Math.min(previous + 1, REQUIRED_CHECK_STEPS.length),
+    );
   }
 
   function goToPreviousStep() {
@@ -383,7 +402,8 @@ function CheckCreatePage() {
     setIsUploadingPhoto(true);
 
     try {
-      const hasDamage = payload.damages.length > 0;
+      const hasDamage =
+        typeCheck === "return" ? true : payload.damages.length > 0;
 
       const photo = await uploadCheckPhoto(
         checkId,
@@ -394,7 +414,7 @@ function CheckCreatePage() {
         hasDamage ? "Photo avec dégât" : undefined,
       );
 
-      if (hasDamage) {
+      if (payload.damages.length > 0) {
         await sendDamagesForPhoto(photo.id, payload.damages);
       }
 
@@ -429,7 +449,7 @@ function CheckCreatePage() {
         hasDamage ? "Photo supplémentaire avec dégât" : undefined,
       );
 
-      if (hasDamage) {
+      if (payload.damages.length > 0) {
         await sendDamagesForPhoto(photo.id, payload.damages);
       }
 
@@ -495,7 +515,9 @@ function CheckCreatePage() {
         </p>
 
         {checkId ? (
-          <p className="check-create-page__check-id">Check en cours : #{checkId}</p>
+          <p className="check-create-page__check-id">
+            Check en cours : #{checkId}
+          </p>
         ) : null}
 
         {resumeMessage ? (
@@ -522,7 +544,9 @@ function CheckCreatePage() {
                 <span>Type de check</span>
                 <select
                   value={typeCheck}
-                  onChange={(event) => setTypeCheck(event.target.value as CheckType)}
+                  onChange={(event) =>
+                    setTypeCheck(event.target.value as CheckType)
+                  }
                 >
                   <option value="departure">Départ</option>
                   <option value="return">Retour</option>
@@ -565,7 +589,9 @@ function CheckCreatePage() {
                 <span>Niveau de carburant</span>
                 <select
                   value={fuelLevel}
-                  onChange={(event) => setFuelLevel(event.target.value as FuelLevel)}
+                  onChange={(event) =>
+                    setFuelLevel(event.target.value as FuelLevel)
+                  }
                 >
                   <option value="one_eighth">1/8 ou 0-13%</option>
                   <option value="two_eighths">2/8 ou 14-25%</option>
@@ -631,6 +657,7 @@ function CheckCreatePage() {
             hint={currentStep.hint}
             stepNumber={stepIndex + 1}
             totalSteps={REQUIRED_CHECK_STEPS.length}
+            checkType={typeCheck}
             onValidate={handlePhotoValidate}
             onNoDamage={handleNoDamageForRequiredStep}
             onBack={goToPreviousStep}
@@ -669,6 +696,7 @@ function CheckCreatePage() {
             hint="Ajoute un détail utile : rayure, impact, accessoire, document, etc."
             stepNumber={REQUIRED_CHECK_STEPS.length + 1}
             totalSteps={REQUIRED_CHECK_STEPS.length + 1}
+            checkType={typeCheck}
             onValidate={handleOtherPhotoValidate}
             onNoDamage={() => undefined}
             onBack={handleBackToPreviousRequiredStep}
