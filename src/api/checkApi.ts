@@ -32,7 +32,7 @@ export async function downloadCheckPdf(checkId: number): Promise<void> {
 
   const fileName =
     extractFileNameFromContentDisposition(response.headers["content-disposition"]) ??
-    `etat-des-lieux-check-${checkId}.pdf`;
+    `check-${checkId}.pdf`;
 
   triggerBrowserDownload(response.data, fileName);
 }
