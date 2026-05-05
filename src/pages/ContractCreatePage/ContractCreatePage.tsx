@@ -1,118 +1,293 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
+import { useNavigate } from "react-router-dom";
 
-type Step = {
-  key: string;
-  label: string;
-};
+import { createContract } from "../../api/contractApi";
+import { uploadLicensePhoto } from "../../api/uploadApi";
+import { getVehicles } from "../../api/vehicleApi";
+import ContractCreateForm from "../../components/contracts/ContractCreateForm";
+import type { SignatureMode } from "../../types/contract";
+import type { Vehicle } from "../../types/vehicle";
+import "./ContractCreatePage.css";
 
-type StepData = {
-  hasDamage: boolean | null;
-  file?: File | null;
-  preview?: string;
-  comment?: string;
-};
+function toDatetimeLocalValue(date: Date): string {
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 16);
+}
 
-const STEPS: Step[] = [
-  { key: "front", label: "Avant" },
-  { key: "rear", label: "Arrière" },
-  { key: "left", label: "Côté gauche" },
-  { key: "right", label: "Côté droit" },
-];
+function getTodayDate(): string {
+  return toDatetimeLocalValue(new Date());
+}
 
-function CheckCreatePage() {
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+function getDefaultEndDate(): string {
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() + 1);
+  return toDatetimeLocalValue(currentDate);
+}
 
-  const [stepsData, setStepsData] = useState<Record<string, StepData>>({});
+function ContractCreatePage() {
+  const navigate = useNavigate();
 
-  const currentStep = STEPS[currentStepIndex];
-  const currentData = stepsData[currentStep.key] || {
-    hasDamage: null,
-  };
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(true);
 
-  function updateStep(data: Partial<StepData>) {
-    setStepsData((prev) => ({
-      ...prev,
-      [currentStep.key]: {
-        ...prev[currentStep.key],
-        ...data,
-      },
-    }));
-  }
+  const [contractNumber, setContractNumber] = useState("");
+  const [vehicleId, setVehicleId] = useState("");
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const [customerFirstName, setCustomerFirstName] = useState("");
+  const [customerLastName, setCustomerLastName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
 
-    updateStep({
-      file,
-      preview: URL.createObjectURL(file),
-    });
-  }
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [licenseIssueDate, setLicenseIssueDate] = useState("");
+  const [licenseCountry, setLicenseCountry] = useState("France");
+  const [licenseFrontPhotoUrl, setLicenseFrontPhotoUrl] = useState("");
+  const [licenseBackPhotoUrl, setLicenseBackPhotoUrl] = useState("");
+  const [isUploadingPrimaryLicense, setIsUploadingPrimaryLicense] = useState(false);
 
-  function next() {
-    if (currentStepIndex < STEPS.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
+  const [secondaryDriverFirstName, setSecondaryDriverFirstName] = useState("");
+  const [secondaryDriverLastName, setSecondaryDriverLastName] = useState("");
+  const [secondaryDriverEmail, setSecondaryDriverEmail] = useState("");
+  const [secondaryDriverPhone, setSecondaryDriverPhone] = useState("");
+  const [secondaryLicenseNumber, setSecondaryLicenseNumber] = useState("");
+  const [secondaryLicenseIssueDate, setSecondaryLicenseIssueDate] = useState("");
+  const [secondaryLicenseCountry, setSecondaryLicenseCountry] = useState("France");
+  const [secondaryLicenseFrontPhotoUrl, setSecondaryLicenseFrontPhotoUrl] = useState("");
+  const [secondaryLicenseBackPhotoUrl, setSecondaryLicenseBackPhotoUrl] = useState("");
+  const [isUploadingSecondaryLicense, setIsUploadingSecondaryLicense] = useState(false);
+
+  const [startDate, setStartDate] = useState(getTodayDate());
+  const [endDate, setEndDate] = useState(getDefaultEndDate());
+  const [rentalPrice, setRentalPrice] = useState("");
+  const [pickupLocation, setPickupLocation] = useState("");
+  const [returnLocation, setReturnLocation] = useState("");
+  const [deliveryFee, setDeliveryFee] = useState("");
+
+  const [signatureMode, setSignatureMode] = useState<SignatureMode>("onsite");
+  const [termsAndConditions, setTermsAndConditions] = useState("");
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function loadVehicles() {
+      try {
+        setIsLoadingVehicles(true);
+        const data = await getVehicles();
+        setVehicles(data);
+      } catch {
+        setErrorMessage("Impossible de charger les véhicules.");
+      } finally {
+        setIsLoadingVehicles(false);
+      }
+    }
+
+    void loadVehicles();
+  }, []);
+
+  const selectedVehicle = useMemo(() => {
+    return vehicles.find((vehicle) => String(vehicle.id) === vehicleId) ?? null;
+  }, [vehicleId, vehicles]);
+
+  async function uploadPrimary(file: File, setter: (url: string) => void) {
+    try {
+      setErrorMessage("");
+      setIsUploadingPrimaryLicense(true);
+      const result = await uploadLicensePhoto(file);
+      setter(result.file_url);
+    } catch {
+      setErrorMessage("Erreur upload permis principal.");
+    } finally {
+      setIsUploadingPrimaryLicense(false);
     }
   }
 
-  function back() {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex((prev) => prev - 1);
+  async function uploadSecondary(file: File, setter: (url: string) => void) {
+    try {
+      setErrorMessage("");
+      setIsUploadingSecondaryLicense(true);
+      const result = await uploadLicensePhoto(file);
+      setter(result.file_url);
+    } catch {
+      setErrorMessage("Erreur upload permis secondaire.");
+    } finally {
+      setIsUploadingSecondaryLicense(false);
     }
   }
 
-  const isValid =
-    currentData.hasDamage === false ||
-    (currentData.hasDamage === true && currentData.file);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!vehicleId) {
+      setErrorMessage("Sélectionne un véhicule.");
+      return;
+    }
+
+    if (!startDate || !endDate) {
+      setErrorMessage("Renseigne les dates de location.");
+      return;
+    }
+
+    if (!licenseFrontPhotoUrl || !licenseBackPhotoUrl) {
+      setErrorMessage("Ajoute le recto et le verso du permis du conducteur principal.");
+      return;
+    }
+
+    setErrorMessage("");
+    setIsSubmitting(true);
+
+    try {
+      const contract = await createContract({
+        contract_number: contractNumber.trim() || `TEMP-${Date.now()}`,
+
+        vehicle_id: Number(vehicleId),
+
+        customer_first_name: customerFirstName.trim(),
+        customer_last_name: customerLastName.trim(),
+        customer_email: customerEmail.trim() || undefined,
+        customer_phone: customerPhone.trim() || undefined,
+        customer_address: customerAddress.trim() || undefined,
+
+        license_number: licenseNumber.trim(),
+        license_issue_date: licenseIssueDate || undefined,
+        license_country: licenseCountry.trim() || undefined,
+        license_front_photo_url: licenseFrontPhotoUrl || undefined,
+        license_back_photo_url: licenseBackPhotoUrl || undefined,
+
+        secondary_driver_first_name: secondaryDriverFirstName.trim() || undefined,
+        secondary_driver_last_name: secondaryDriverLastName.trim() || undefined,
+        secondary_driver_email: secondaryDriverEmail.trim() || undefined,
+        secondary_driver_phone: secondaryDriverPhone.trim() || undefined,
+        secondary_license_number: secondaryLicenseNumber.trim() || undefined,
+        secondary_license_issue_date: secondaryLicenseIssueDate || undefined,
+        secondary_license_country: secondaryLicenseCountry.trim() || undefined,
+        secondary_license_front_photo_url: secondaryLicenseFrontPhotoUrl || undefined,
+        secondary_license_back_photo_url: secondaryLicenseBackPhotoUrl || undefined,
+
+    start_date: startDate,
+end_date: endDate,
+
+        rental_price: Number(rentalPrice || 0),
+
+        pickup_location: pickupLocation.trim() || undefined,
+        return_location: returnLocation.trim() || undefined,
+        delivery_fee: deliveryFee ? Number(deliveryFee) : undefined,
+
+        status: "draft",
+        signature_mode: signatureMode,
+        terms_and_conditions: termsAndConditions.trim() || undefined,
+      });
+
+      navigate(`/contracts/${contract.id}`);
+    } catch {
+      setErrorMessage("Impossible de créer le contrat.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <div style={{ maxWidth: 500, margin: "0 auto" }}>
-      <h2>{currentStep.label}</h2>
-
-      {/* QUESTION */}
-      <div style={{ marginBottom: 20 }}>
-        <button onClick={() => updateStep({ hasDamage: false })}>
-          ✅ Aucun dégât
-        </button>
-
-        <button onClick={() => updateStep({ hasDamage: true })}>
-          ⚠️ Signaler un dégât
-        </button>
-      </div>
-
-      {/* SI DEGAT */}
-      {currentData.hasDamage === true && (
+    <section className="contract-create-page">
+      <header className="contract-create-page__header">
         <div>
-          <input type="file" accept="image/*" onChange={handleFile} />
-
-          {currentData.preview && (
-            <img
-              src={currentData.preview}
-              alt="preview"
-              style={{ width: "100%", marginTop: 10 }}
-            />
-          )}
-
-          <textarea
-            placeholder="Commentaire"
-            value={currentData.comment || ""}
-            onChange={(e) => updateStep({ comment: e.target.value })}
-          />
+          <p className="contract-create-page__eyebrow">Contrats</p>
+          <h2 className="contract-create-page__title">Créer un contrat</h2>
         </div>
-      )}
 
-      {/* NAVIGATION */}
-      <div style={{ marginTop: 20 }}>
-        <button onClick={back} disabled={currentStepIndex === 0}>
-          ⬅️ Retour
-        </button>
+        <p className="contract-create-page__description">
+          Formulaire contrat avec véhicule, client, permis recto/verso, livraison et conducteur secondaire.
+        </p>
+      </header>
 
-        <button onClick={next} disabled={!isValid}>
-          ➡️ Suivant
-        </button>
-      </div>
-    </div>
+      <ContractCreateForm
+        contractNumber={contractNumber}
+        setContractNumber={setContractNumber}
+        vehicleId={vehicleId}
+        vehicles={vehicles}
+        isLoadingVehicles={isLoadingVehicles}
+        selectedVehicle={selectedVehicle}
+        customerFirstName={customerFirstName}
+        customerLastName={customerLastName}
+        customerEmail={customerEmail}
+        customerPhone={customerPhone}
+        customerAddress={customerAddress}
+        licenseNumber={licenseNumber}
+        licenseIssueDate={licenseIssueDate}
+        licenseCountry={licenseCountry}
+        licenseFrontPhotoUrl={licenseFrontPhotoUrl}
+        licenseBackPhotoUrl={licenseBackPhotoUrl}
+        isUploadingPrimaryLicense={isUploadingPrimaryLicense}
+        secondaryDriverFirstName={secondaryDriverFirstName}
+        secondaryDriverLastName={secondaryDriverLastName}
+        secondaryDriverEmail={secondaryDriverEmail}
+        secondaryDriverPhone={secondaryDriverPhone}
+        secondaryLicenseNumber={secondaryLicenseNumber}
+        secondaryLicenseIssueDate={secondaryLicenseIssueDate}
+        secondaryLicenseCountry={secondaryLicenseCountry}
+        secondaryLicenseFrontPhotoUrl={secondaryLicenseFrontPhotoUrl}
+        secondaryLicenseBackPhotoUrl={secondaryLicenseBackPhotoUrl}
+        isUploadingSecondaryLicense={isUploadingSecondaryLicense}
+        startDate={startDate}
+        endDate={endDate}
+        rentalPrice={rentalPrice}
+        pickupLocation={pickupLocation}
+        returnLocation={returnLocation}
+        deliveryFee={deliveryFee}
+        signatureMode={signatureMode}
+        termsAndConditions={termsAndConditions}
+        errorMessage={errorMessage}
+        isSubmitting={isSubmitting}
+        onSubmit={handleSubmit}
+        onCancel={() => navigate("/contracts")}
+        setVehicleId={setVehicleId}
+        setCustomerFirstName={setCustomerFirstName}
+        setCustomerLastName={setCustomerLastName}
+        setCustomerEmail={setCustomerEmail}
+        setCustomerPhone={setCustomerPhone}
+        setCustomerAddress={setCustomerAddress}
+        setLicenseNumber={setLicenseNumber}
+        setLicenseIssueDate={setLicenseIssueDate}
+        setLicenseCountry={setLicenseCountry}
+        setSecondaryDriverFirstName={setSecondaryDriverFirstName}
+        setSecondaryDriverLastName={setSecondaryDriverLastName}
+        setSecondaryDriverEmail={setSecondaryDriverEmail}
+        setSecondaryDriverPhone={setSecondaryDriverPhone}
+        setSecondaryLicenseNumber={setSecondaryLicenseNumber}
+        setSecondaryLicenseIssueDate={setSecondaryLicenseIssueDate}
+        setSecondaryLicenseCountry={setSecondaryLicenseCountry}
+        setStartDate={setStartDate}
+        setEndDate={setEndDate}
+        setRentalPrice={setRentalPrice}
+        setPickupLocation={setPickupLocation}
+        setReturnLocation={setReturnLocation}
+        setDeliveryFee={setDeliveryFee}
+        setSignatureMode={setSignatureMode}
+        setTermsAndConditions={setTermsAndConditions}
+        onPrimaryFrontUpload={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadPrimary(file, setLicenseFrontPhotoUrl);
+        }}
+        onPrimaryBackUpload={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadPrimary(file, setLicenseBackPhotoUrl);
+        }}
+        onSecondaryFrontUpload={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadSecondary(file, setSecondaryLicenseFrontPhotoUrl);
+        }}
+        onSecondaryBackUpload={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadSecondary(file, setSecondaryLicenseBackPhotoUrl);
+        }}
+      />
+    </section>
   );
 }
 
-export default CheckCreatePage;
+export default ContractCreatePage;
