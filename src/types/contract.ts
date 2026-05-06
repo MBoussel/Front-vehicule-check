@@ -15,6 +15,14 @@ export interface RentalContract {
   contract_number: string;
   vehicle_id: number;
 
+  source?: ContractSource;
+is_external?: boolean;
+external_platform_reference?: string | null;
+platform_fee?: number | string | null;
+net_revenue?: number | string | null;
+external_start_mileage?: number | null;
+external_end_mileage?: number | null;
+
   customer_first_name: string;
   customer_last_name: string;
   customer_email?: string | null;
@@ -64,6 +72,13 @@ export interface RentalContractCreatePayload {
   contract_number: string;
   vehicle_id: number;
 
+  source?: ContractSource;
+is_external?: boolean;
+external_platform_reference?: string;
+platform_fee?: number;
+net_revenue?: number;
+external_start_mileage?: number;
+external_end_mileage?: number;
   customer_first_name: string;
   customer_last_name: string;
   customer_email?: string;
@@ -142,3 +157,4 @@ export interface ContractClosurePayload {
   notes?: string;
   status?: ContractClosureStatus;
 }
+export type ContractSource = "internal" | "roadstr" | "turo" | "other" | string;
