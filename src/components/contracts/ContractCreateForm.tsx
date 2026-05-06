@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 
 import type { SignatureMode } from "../../types/contract";
 import type { Vehicle } from "../../types/vehicle";
@@ -105,9 +105,9 @@ function readVehicleMoney(
 }
 
 function ContractCreateForm(props: ContractCreateFormProps) {
-  const {
-  
+  const [showSecondaryDriver, setShowSecondaryDriver] = useState(false);
 
+  const {
     vehicleId,
     vehicles,
     isLoadingVehicles,
@@ -128,8 +128,6 @@ function ContractCreateForm(props: ContractCreateFormProps) {
 
     secondaryDriverFirstName,
     secondaryDriverLastName,
-    secondaryDriverEmail,
-    secondaryDriverPhone,
     secondaryLicenseNumber,
     secondaryLicenseIssueDate,
     secondaryLicenseCountry,
@@ -167,8 +165,6 @@ function ContractCreateForm(props: ContractCreateFormProps) {
 
     setSecondaryDriverFirstName,
     setSecondaryDriverLastName,
-    setSecondaryDriverEmail,
-    setSecondaryDriverPhone,
     setSecondaryLicenseNumber,
     setSecondaryLicenseIssueDate,
     setSecondaryLicenseCountry,
@@ -201,8 +197,8 @@ function ContractCreateForm(props: ContractCreateFormProps) {
           <label className="contract-create-page__field">
             <span>Numéro de contrat</span>
             <p className="contract-create-page__helper">
-  Le numéro de contrat sera généré automatiquement.
-</p>
+              Le numéro de contrat sera généré automatiquement.
+            </p>
           </label>
 
           <label className="contract-create-page__field">
@@ -388,88 +384,82 @@ function ContractCreateForm(props: ContractCreateFormProps) {
           <p>Optionnel. À remplir seulement si un second conducteur est autorisé.</p>
         </div>
 
-        <div className="contract-create-page__grid">
-          <label className="contract-create-page__field">
-            <span>Prénom</span>
-            <input
-              type="text"
-              value={secondaryDriverFirstName}
-              onChange={(event) => setSecondaryDriverFirstName(event.target.value)}
+        <button
+          type="button"
+          className="contract-create-page__secondary-button"
+          onClick={() => setShowSecondaryDriver((previousValue) => !previousValue)}
+        >
+          {showSecondaryDriver
+            ? "Masquer le conducteur secondaire"
+            : "Ajouter un conducteur secondaire"}
+        </button>
+
+        {showSecondaryDriver ? (
+          <div className="contract-create-page__grid">
+            <label className="contract-create-page__field">
+              <span>Prénom</span>
+              <input
+                type="text"
+                value={secondaryDriverFirstName}
+                onChange={(event) => setSecondaryDriverFirstName(event.target.value)}
+              />
+            </label>
+
+            <label className="contract-create-page__field">
+              <span>Nom</span>
+              <input
+                type="text"
+                value={secondaryDriverLastName}
+                onChange={(event) => setSecondaryDriverLastName(event.target.value)}
+              />
+            </label>
+
+            <label className="contract-create-page__field">
+              <span>Numéro de permis</span>
+              <input
+                type="text"
+                value={secondaryLicenseNumber}
+                onChange={(event) => setSecondaryLicenseNumber(event.target.value)}
+              />
+            </label>
+
+            <label className="contract-create-page__field">
+              <span>Date de délivrance</span>
+              <input
+                type="date"
+                value={secondaryLicenseIssueDate}
+                onChange={(event) => setSecondaryLicenseIssueDate(event.target.value)}
+              />
+            </label>
+
+            <label className="contract-create-page__field">
+              <span>Pays du permis</span>
+              <input
+                type="text"
+                value={secondaryLicenseCountry}
+                onChange={(event) => setSecondaryLicenseCountry(event.target.value)}
+              />
+            </label>
+
+            <LicenseUploadField
+              label="Permis secondaire - recto"
+              isUploading={isUploadingSecondaryLicense}
+              uploaded={Boolean(secondaryLicenseFrontPhotoUrl)}
+              emptyText="Optionnel."
+              uploadedText="Recto enregistré."
+              onChange={onSecondaryFrontUpload}
             />
-          </label>
 
-          <label className="contract-create-page__field">
-            <span>Nom</span>
-            <input
-              type="text"
-              value={secondaryDriverLastName}
-              onChange={(event) => setSecondaryDriverLastName(event.target.value)}
+            <LicenseUploadField
+              label="Permis secondaire - verso"
+              isUploading={isUploadingSecondaryLicense}
+              uploaded={Boolean(secondaryLicenseBackPhotoUrl)}
+              emptyText="Optionnel."
+              uploadedText="Verso enregistré."
+              onChange={onSecondaryBackUpload}
             />
-          </label>
-
-          <label className="contract-create-page__field">
-            <span>Email</span>
-            <input
-              type="email"
-              value={secondaryDriverEmail}
-              onChange={(event) => setSecondaryDriverEmail(event.target.value)}
-            />
-          </label>
-
-          <label className="contract-create-page__field">
-            <span>Téléphone</span>
-            <input
-              type="text"
-              value={secondaryDriverPhone}
-              onChange={(event) => setSecondaryDriverPhone(event.target.value)}
-            />
-          </label>
-
-          <label className="contract-create-page__field">
-            <span>Numéro de permis</span>
-            <input
-              type="text"
-              value={secondaryLicenseNumber}
-              onChange={(event) => setSecondaryLicenseNumber(event.target.value)}
-            />
-          </label>
-
-          <label className="contract-create-page__field">
-            <span>Date de délivrance</span>
-            <input
-              type="date"
-              value={secondaryLicenseIssueDate}
-              onChange={(event) => setSecondaryLicenseIssueDate(event.target.value)}
-            />
-          </label>
-
-          <label className="contract-create-page__field">
-            <span>Pays du permis</span>
-            <input
-              type="text"
-              value={secondaryLicenseCountry}
-              onChange={(event) => setSecondaryLicenseCountry(event.target.value)}
-            />
-          </label>
-
-          <LicenseUploadField
-            label="Permis secondaire - recto"
-            isUploading={isUploadingSecondaryLicense}
-            uploaded={Boolean(secondaryLicenseFrontPhotoUrl)}
-            emptyText="Optionnel."
-            uploadedText="Recto enregistré."
-            onChange={onSecondaryFrontUpload}
-          />
-
-          <LicenseUploadField
-            label="Permis secondaire - verso"
-            isUploading={isUploadingSecondaryLicense}
-            uploaded={Boolean(secondaryLicenseBackPhotoUrl)}
-            emptyText="Optionnel."
-            uploadedText="Verso enregistré."
-            onChange={onSecondaryBackUpload}
-          />
-        </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="contract-create-page__section">
