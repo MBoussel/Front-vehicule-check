@@ -1,85 +1,150 @@
 .contract-close-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  padding-bottom: 32px;
 }
 
 .contract-close-page__header,
 .contract-close-page__card,
 .contract-close-page__form,
-.contract-close-page__state {
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: rgba(29, 33, 43, 0.92);
-  box-shadow: var(--shadow);
+.contract-close-page__state,
+.contract-close-page__closed-banner {
+  border: 1px solid rgba(74, 222, 128, 0.18);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(29, 33, 43, 0.96), rgba(14, 18, 27, 0.98)),
+    radial-gradient(circle at top right, rgba(45, 212, 191, 0.16), transparent 38%);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .contract-close-page__header {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 18px;
+  padding: 24px;
 }
 
 .contract-close-page__eyebrow {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   color: var(--primary);
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .contract-close-page__title {
   margin: 0 0 8px;
-  font-size: 1.7rem;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 900;
 }
 
 .contract-close-page__description {
   margin: 0;
+  max-width: 680px;
   color: var(--text-soft);
+  line-height: 1.5;
 }
 
 .contract-close-page__status {
   align-self: flex-start;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(70, 211, 154, 0.16);
-  color: #8bf0c3;
-  font-weight: 700;
+  background: rgba(45, 212, 191, 0.16);
+  color: #7ff7df;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
-.contract-close-page__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.contract-close-page__card {
+.contract-close-page__closed-banner {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  padding: 24px;
+  border-color: rgba(45, 212, 191, 0.42);
+  background:
+    linear-gradient(135deg, rgba(13, 148, 136, 0.28), rgba(15, 23, 42, 0.95)),
+    radial-gradient(circle at top right, rgba(45, 212, 191, 0.28), transparent 42%);
 }
 
-.contract-close-page__card h3,
-.contract-close-page__form h3 {
-  margin: 0 0 10px;
+.contract-close-page__closed-label {
+  margin: 0 0 8px;
+  color: #7ff7df;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.contract-close-page__card p {
+.contract-close-page__closed-banner h3 {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+}
+
+.contract-close-page__closed-banner p {
   margin: 0;
   color: var(--text-soft);
 }
 
+.contract-close-page__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.contract-close-page__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.contract-close-page__card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(45, 212, 191, 0.14), transparent 44%);
+  pointer-events: none;
+}
+
+.contract-close-page__card h3,
+.contract-close-page__form h3 {
+  position: relative;
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.contract-close-page__card p {
+  position: relative;
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+
+.contract-close-page__card strong {
+  color: var(--text);
+}
+
 .contract-close-page__total {
-  color: var(--primary);
-  font-size: 1.2rem;
-  font-weight: 800;
+  display: inline-flex;
+  margin-top: 4px;
+  color: #7ff7df;
+  font-size: 1.55rem;
+  font-weight: 950;
+}
+
+.contract-close-page__form {
+  padding: 24px;
 }
 
 .contract-close-page__form-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -95,24 +160,37 @@
 
 .contract-close-page__field span {
   color: var(--text-soft);
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 900;
 }
 
 .contract-close-page__field input,
 .contract-close-page__field textarea {
   width: 100%;
-  min-height: 46px;
-  padding: 0 14px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: #12161d;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  outline: none;
+  background: rgba(7, 12, 19, 0.72);
   color: var(--text);
   font: inherit;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
 }
 
 .contract-close-page__field textarea {
-  padding: 12px 14px;
+  min-height: 150px;
+  padding: 16px;
   resize: vertical;
+}
+
+.contract-close-page__field input:focus,
+.contract-close-page__field textarea:focus {
+  border-color: rgba(45, 212, 191, 0.72);
+  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.12);
 }
 
 .contract-close-page__actions {
@@ -120,7 +198,7 @@
   justify-content: flex-end;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 18px;
+  margin-top: 22px;
 }
 
 .contract-close-page__secondary-button,
@@ -128,34 +206,79 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 50px;
+  min-height: 52px;
   border: 0;
-  border-radius: 16px;
-  padding: 0 18px;
-  font-weight: 700;
+  border-radius: 18px;
+  padding: 0 22px;
+  font-weight: 900;
   text-decoration: none;
   cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
 }
 
 .contract-close-page__secondary-button {
-  background: #2b3140;
+  background: linear-gradient(135deg, #2b3140, #1f2533);
   color: var(--text);
 }
 
 .contract-close-page__primary-button {
-  background: var(--primary);
-  color: #071411;
+  background: linear-gradient(135deg, #2dd4bf, #4ade80);
+  color: #04120f;
+  box-shadow: 0 14px 34px rgba(45, 212, 191, 0.24);
+}
+
+.contract-close-page__secondary-button:hover,
+.contract-close-page__primary-button:hover {
+  transform: translateY(-2px);
+}
+
+.contract-close-page__secondary-button:disabled,
+.contract-close-page__primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
+.contract-close-page__state {
+  padding: 18px 20px;
+  color: #8bf0c3;
+  font-weight: 800;
 }
 
 .contract-close-page__state--error {
+  border-color: rgba(248, 113, 113, 0.3);
   color: #ff9a9a;
 }
 
-@media (max-width: 900px) {
-  .contract-close-page__header,
+@media (max-width: 1100px) {
+  .contract-close-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contract-close-page__form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .contract-close-page__header {
+    flex-direction: column;
+  }
+
   .contract-close-page__grid,
   .contract-close-page__form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .contract-close-page__actions {
     flex-direction: column;
+  }
+
+  .contract-close-page__secondary-button,
+  .contract-close-page__primary-button {
+    width: 100%;
   }
 }

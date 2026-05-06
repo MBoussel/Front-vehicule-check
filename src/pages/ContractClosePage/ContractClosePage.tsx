@@ -278,6 +278,17 @@ function ContractClosePage() {
           {closure?.status === "closed" ? "Clôturé" : "Brouillon"}
         </span>
       </header>
+      {closure?.status === "closed" ? (
+  <div className="contract-close-page__closed-banner">
+    <div>
+      <p className="contract-close-page__closed-label">Contrat clôturé</p>
+      <h3>Total final : {formatMoney(closure.final_total)}</h3>
+      <p>
+        La clôture est validée. Tu peux télécharger les PDF départ / retour ou revenir au contrat.
+      </p>
+    </div>
+  </div>
+) : null}
 
       <div className="contract-close-page__grid">
         <article className="contract-close-page__card">
