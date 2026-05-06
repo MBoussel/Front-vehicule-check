@@ -134,18 +134,12 @@ function ContractCreatePage() {
       return;
     }
 
-    if (!licenseFrontPhotoUrl || !licenseBackPhotoUrl) {
-      setErrorMessage("Ajoute le recto et le verso du permis du conducteur principal.");
-      return;
-    }
-
     setErrorMessage("");
     setIsSubmitting(true);
 
     try {
       const contract = await createContract({
         contract_number: contractNumber.trim() || `TEMP-${Date.now()}`,
-
         vehicle_id: Number(vehicleId),
 
         customer_first_name: customerFirstName.trim(),
@@ -154,7 +148,7 @@ function ContractCreatePage() {
         customer_phone: customerPhone.trim() || undefined,
         customer_address: customerAddress.trim() || undefined,
 
-        license_number: licenseNumber.trim(),
+        license_number: licenseNumber.trim() || undefined,
         license_issue_date: licenseIssueDate || undefined,
         license_country: licenseCountry.trim() || undefined,
         license_front_photo_url: licenseFrontPhotoUrl || undefined,
@@ -170,11 +164,10 @@ function ContractCreatePage() {
         secondary_license_front_photo_url: secondaryLicenseFrontPhotoUrl || undefined,
         secondary_license_back_photo_url: secondaryLicenseBackPhotoUrl || undefined,
 
-    start_date: startDate,
-end_date: endDate,
+        start_date: new Date(startDate).toISOString(),
+        end_date: new Date(endDate).toISOString(),
 
         rental_price: Number(rentalPrice || 0),
-
         pickup_location: pickupLocation.trim() || undefined,
         return_location: returnLocation.trim() || undefined,
         delivery_fee: deliveryFee ? Number(deliveryFee) : undefined,
@@ -201,7 +194,7 @@ end_date: endDate,
         </div>
 
         <p className="contract-create-page__description">
-          Formulaire contrat avec véhicule, client, permis recto/verso, livraison et conducteur secondaire.
+          Formulaire contrat avec véhicule, client, permis optionnel, livraison et conducteur secondaire.
         </p>
       </header>
 
@@ -269,22 +262,22 @@ end_date: endDate,
         setDeliveryFee={setDeliveryFee}
         setSignatureMode={setSignatureMode}
         setTermsAndConditions={setTermsAndConditions}
-        onPrimaryFrontUpload={(event) => {
-          const file = event.target.files?.[0];
-          if (file) void uploadPrimary(file, setLicenseFrontPhotoUrl);
-        }}
-        onPrimaryBackUpload={(event) => {
-          const file = event.target.files?.[0];
-          if (file) void uploadPrimary(file, setLicenseBackPhotoUrl);
-        }}
-        onSecondaryFrontUpload={(event) => {
-          const file = event.target.files?.[0];
-          if (file) void uploadSecondary(file, setSecondaryLicenseFrontPhotoUrl);
-        }}
-        onSecondaryBackUpload={(event) => {
-          const file = event.target.files?.[0];
-          if (file) void uploadSecondary(file, setSecondaryLicenseBackPhotoUrl);
-        }}
+        onPrimaryFrontUpload={(event) =>
+          event.target.files?.[0] &&
+          uploadPrimary(event.target.files[0], setLicenseFrontPhotoUrl)
+        }
+        onPrimaryBackUpload={(event) =>
+          event.target.files?.[0] &&
+          uploadPrimary(event.target.files[0], setLicenseBackPhotoUrl)
+        }
+        onSecondaryFrontUpload={(event) =>
+          event.target.files?.[0] &&
+          uploadSecondary(event.target.files[0], setSecondaryLicenseFrontPhotoUrl)
+        }
+        onSecondaryBackUpload={(event) =>
+          event.target.files?.[0] &&
+          uploadSecondary(event.target.files[0], setSecondaryLicenseBackPhotoUrl)
+        }
       />
     </section>
   );

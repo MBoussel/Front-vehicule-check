@@ -105,6 +105,7 @@ function readVehicleMoney(
 }
 
 function ContractCreateForm(props: ContractCreateFormProps) {
+  const [showPrimaryLicense, setShowPrimaryLicense] = useState(false);
   const [showSecondaryDriver, setShowSecondaryDriver] = useState(false);
 
   const {
@@ -324,58 +325,65 @@ function ContractCreateForm(props: ContractCreateFormProps) {
       <section className="contract-create-page__section">
         <div className="contract-create-page__section-header">
           <h3>Permis principal</h3>
-          <p>Données du permis principal avec recto et verso.</p>
+          <p>Optionnel. Tu peux créer le contrat maintenant et ajouter le permis plus tard.</p>
         </div>
 
-        <div className="contract-create-page__grid">
-          <label className="contract-create-page__field">
-            <span>Numéro de permis</span>
-            <input
-              type="text"
-              value={licenseNumber}
-              onChange={(event) => setLicenseNumber(event.target.value)}
-              required
+        <button
+          type="button"
+          className="contract-create-page__secondary-button"
+          onClick={() => setShowPrimaryLicense((previousValue) => !previousValue)}
+        >
+          {showPrimaryLicense ? "Masquer le permis" : "Voulez-vous ajouter le permis ?"}
+        </button>
+
+        {showPrimaryLicense ? (
+          <div className="contract-create-page__grid">
+            <label className="contract-create-page__field">
+              <span>Numéro de permis</span>
+              <input
+                type="text"
+                value={licenseNumber}
+                onChange={(event) => setLicenseNumber(event.target.value)}
+              />
+            </label>
+
+            <label className="contract-create-page__field">
+              <span>Date de délivrance</span>
+              <input
+                type="date"
+                value={licenseIssueDate}
+                onChange={(event) => setLicenseIssueDate(event.target.value)}
+              />
+            </label>
+
+            <label className="contract-create-page__field">
+              <span>Pays du permis</span>
+              <input
+                type="text"
+                value={licenseCountry}
+                onChange={(event) => setLicenseCountry(event.target.value)}
+              />
+            </label>
+
+            <LicenseUploadField
+              label="Permis principal - recto"
+              isUploading={isUploadingPrimaryLicense}
+              uploaded={Boolean(licenseFrontPhotoUrl)}
+              emptyText="Optionnel."
+              uploadedText="Recto enregistré."
+              onChange={onPrimaryFrontUpload}
             />
-          </label>
 
-          <label className="contract-create-page__field">
-            <span>Date de délivrance</span>
-            <input
-              type="date"
-              value={licenseIssueDate}
-              onChange={(event) => setLicenseIssueDate(event.target.value)}
-              required
+            <LicenseUploadField
+              label="Permis principal - verso"
+              isUploading={isUploadingPrimaryLicense}
+              uploaded={Boolean(licenseBackPhotoUrl)}
+              emptyText="Optionnel."
+              uploadedText="Verso enregistré."
+              onChange={onPrimaryBackUpload}
             />
-          </label>
-
-          <label className="contract-create-page__field">
-            <span>Pays du permis</span>
-            <input
-              type="text"
-              value={licenseCountry}
-              onChange={(event) => setLicenseCountry(event.target.value)}
-              required
-            />
-          </label>
-
-          <LicenseUploadField
-            label="Permis principal - recto"
-            isUploading={isUploadingPrimaryLicense}
-            uploaded={Boolean(licenseFrontPhotoUrl)}
-            emptyText="Prendre ou choisir la photo du recto."
-            uploadedText="Recto enregistré."
-            onChange={onPrimaryFrontUpload}
-          />
-
-          <LicenseUploadField
-            label="Permis principal - verso"
-            isUploading={isUploadingPrimaryLicense}
-            uploaded={Boolean(licenseBackPhotoUrl)}
-            emptyText="Prendre ou choisir la photo du verso."
-            uploadedText="Verso enregistré."
-            onChange={onPrimaryBackUpload}
-          />
-        </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="contract-create-page__section">

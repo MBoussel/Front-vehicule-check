@@ -70,7 +70,7 @@ export interface RentalContractCreatePayload {
   customer_phone?: string;
   customer_address?: string;
 
-  license_number: string;
+  license_number?: string;
   license_issue_date?: string;
   license_country?: string;
   license_front_photo_url?: string;
