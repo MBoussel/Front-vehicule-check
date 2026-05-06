@@ -322,11 +322,11 @@ function ContractClosePage() {
           <p>
             <strong>Km retour :</strong> {closure?.return_mileage ?? "-"} km
           </p>
-          <p>
-            <strong>Km effectués :</strong> {closure?.driven_km ?? "-"} km
+           <p>
+            <strong>Km inclus :</strong> {closure?.included_km ?? "-"} km
           </p>
           <p>
-            <strong>Km inclus :</strong> {closure?.included_km ?? "-"} km
+            <strong className="contract-km-effectués">Km effectués :</strong> {closure?.driven_km ?? "-"} km
           </p>
           <p>
             <strong>Dépassement :</strong> {closure?.extra_km ?? "-"} km

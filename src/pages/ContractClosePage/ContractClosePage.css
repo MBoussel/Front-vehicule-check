@@ -130,7 +130,7 @@
   color: var(--text);
 }
 
-.contract-close-page__total {
+.contract-close-page__total, .contract-km-effectués  {
   display: inline-flex;
   margin-top: 4px;
   color: #7ff7df;
@@ -242,7 +242,7 @@
   transform: none;
 }
 
-.contract-close-page__state {
+.contract-close-page__state{
   padding: 18px 20px;
   color: #8bf0c3;
   font-weight: 800;
