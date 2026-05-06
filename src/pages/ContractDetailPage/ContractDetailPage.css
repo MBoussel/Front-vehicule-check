@@ -141,7 +141,75 @@
 .contract-detail-page__state--error {
   color: #ff9a9a;
 }
+.contract-detail-page__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
 
+.contract-detail-page__card-header h3 {
+  margin: 0;
+}
+
+.contract-detail-page__edit-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.contract-detail-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contract-detail-page__field span {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.contract-detail-page__field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #12161d;
+  color: var(--text);
+  font: inherit;
+}
+
+.contract-detail-page__field input[type="file"] {
+  padding: 12px;
+  background: #171b23;
+}
+
+.contract-detail-page__field small {
+  color: var(--text-soft);
+}
+
+.contract-detail-page__edit-form .contract-detail-page__subgrid {
+  grid-column: 1 / -1;
+}
+
+.contract-detail-page__edit-form .contract-detail-page__actions {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+@media (max-width: 700px) {
+  .contract-detail-page__card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contract-detail-page__edit-form {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 900px) {
   .contract-detail-page__grid,
   .contract-detail-page__subgrid {
