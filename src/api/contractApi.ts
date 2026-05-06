@@ -1,5 +1,10 @@
 import { http } from "./http";
-import type { RentalContract, RentalContractCreatePayload } from "../types/contract";
+import type {
+  ContractClosure,
+  ContractClosurePayload,
+  RentalContract,
+  RentalContractCreatePayload,
+} from "../types/contract";
 
 export async function getContracts(): Promise<RentalContract[]> {
   const response = await http.get<RentalContract[]>("/contracts/");
@@ -23,5 +28,34 @@ export async function updateContract(
   payload: Partial<RentalContractCreatePayload>,
 ): Promise<RentalContract> {
   const response = await http.put<RentalContract>(`/contracts/${contractId}`, payload);
+  return response.data;
+}
+
+export async function getContractClosure(contractId: number): Promise<ContractClosure> {
+  const response = await http.get<ContractClosure>(`/contracts/${contractId}/closure`);
+  return response.data;
+}
+
+export async function createContractClosure(
+  contractId: number,
+  payload: ContractClosurePayload,
+): Promise<ContractClosure> {
+  const response = await http.post<ContractClosure>(
+    `/contracts/${contractId}/closure`,
+    payload,
+  );
+
+  return response.data;
+}
+
+export async function updateContractClosure(
+  contractId: number,
+  payload: ContractClosurePayload,
+): Promise<ContractClosure> {
+  const response = await http.put<ContractClosure>(
+    `/contracts/${contractId}/closure`,
+    payload,
+  );
+
   return response.data;
 }

@@ -1,0 +1,161 @@
+.contract-close-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contract-close-page__header,
+.contract-close-page__card,
+.contract-close-page__form,
+.contract-close-page__state {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(29, 33, 43, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.contract-close-page__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.contract-close-page__eyebrow {
+  margin: 0 0 6px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.contract-close-page__title {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+}
+
+.contract-close-page__description {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.contract-close-page__status {
+  align-self: flex-start;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(70, 211, 154, 0.16);
+  color: #8bf0c3;
+  font-weight: 700;
+}
+
+.contract-close-page__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.contract-close-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contract-close-page__card h3,
+.contract-close-page__form h3 {
+  margin: 0 0 10px;
+}
+
+.contract-close-page__card p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.contract-close-page__total {
+  color: var(--primary);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.contract-close-page__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.contract-close-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contract-close-page__field--full {
+  grid-column: 1 / -1;
+}
+
+.contract-close-page__field span {
+  color: var(--text-soft);
+  font-weight: 700;
+}
+
+.contract-close-page__field input,
+.contract-close-page__field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #12161d;
+  color: var(--text);
+  font: inherit;
+}
+
+.contract-close-page__field textarea {
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.contract-close-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.contract-close-page__secondary-button,
+.contract-close-page__primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  border: 0;
+  border-radius: 16px;
+  padding: 0 18px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.contract-close-page__secondary-button {
+  background: #2b3140;
+  color: var(--text);
+}
+
+.contract-close-page__primary-button {
+  background: var(--primary);
+  color: #071411;
+}
+
+.contract-close-page__state--error {
+  color: #ff9a9a;
+}
+
+@media (max-width: 900px) {
+  .contract-close-page__header,
+  .contract-close-page__grid,
+  .contract-close-page__form-grid {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+}

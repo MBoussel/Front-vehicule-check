@@ -101,3 +101,44 @@ export interface RentalContractCreatePayload {
   signature_mode: SignatureMode;
   terms_and_conditions?: string;
 }
+export type ContractClosureStatus = "draft" | "closed";
+
+export interface ContractClosure {
+  id: number;
+  contract_id: number;
+
+  rental_days: number;
+  departure_mileage: number;
+  return_mileage: number;
+  driven_km: number;
+
+  included_km: number;
+  extra_km: number;
+
+  rental_price: number | string;
+  extra_km_fee: number | string;
+  fuel_fee: number | string;
+  cleaning_fee: number | string;
+  damage_fee: number | string;
+  other_fee: number | string;
+  discount_amount: number | string;
+
+  final_total: number | string;
+
+  notes?: string | null;
+  status: ContractClosureStatus | string;
+
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContractClosurePayload {
+  extra_km_fee?: number;
+  fuel_fee?: number;
+  cleaning_fee?: number;
+  damage_fee?: number;
+  other_fee?: number;
+  discount_amount?: number;
+  notes?: string;
+  status?: ContractClosureStatus;
+}

@@ -795,6 +795,14 @@ function ContractDetailPage() {
             {isDownloadingPdf ? "Téléchargement..." : "Télécharger le PDF retour"}
           </button>
         ) : null}
+        {departureCheck?.status === "completed" && returnCheck?.status === "completed" ? (
+  <Link
+    to={`/contracts/${contract.id}/close`}
+    className="contract-detail-page__primary-button"
+  >
+    Clôturer le contrat
+  </Link>
+) : null}
       </div>
     </section>
   );
