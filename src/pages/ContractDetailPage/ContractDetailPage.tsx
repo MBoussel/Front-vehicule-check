@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { downloadCheckPdf } from "../../api/checkApi";
-import { getContractById } from "../../api/contractApi";
+import { getContractById, getContractClosure } from "../../api/contractApi";
 import type { RentalContract } from "../../types/contract";
 import "./ContractDetailPage.css";
 
@@ -22,18 +22,17 @@ function formatStatus(status: RentalContract["status"]): string {
 function formatDateTime(value?: string | null): string {
   if (!value) return "-";
 
-  const cleanValue = value
-    .replace("T", " ")
-    .replace("+00:00", "")
-    .replace("+00", "");
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
 
-  const [datePart, timePart] = cleanValue.split(" ");
-  if (!datePart || !timePart) return value;
-
-  const [year, month, day] = datePart.split("-");
-  const [hour, minute] = timePart.split(":");
-
-  return `${day}/${month}/${year} ${hour}:${minute}`;
+  return date.toLocaleString("fr-FR", {
+    timeZone: "Europe/Paris",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function formatDate(value?: string | null): string {
@@ -81,6 +80,7 @@ function hasSecondaryDriver(contract: RentalContract): boolean {
 
 function ContractDetailPage() {
   const { contractId } = useParams();
+  const navigate = useNavigate();
 
   const [contract, setContract] = useState<RentalContract | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,7 +98,20 @@ function ContractDetailPage() {
       try {
         setIsLoading(true);
         setErrorMessage("");
+
         const data = await getContractById(Number(contractId));
+
+        try {
+          const closure = await getContractClosure(Number(contractId));
+
+          if (closure.status === "closed") {
+            navigate(`/contracts/${contractId}/close`, { replace: true });
+            return;
+          }
+        } catch {
+          // Pas de clôture enregistrée, on reste sur la page détail du contrat.
+        }
+
         setContract(data);
       } catch {
         setErrorMessage("Impossible de charger le contrat.");
@@ -108,7 +121,7 @@ function ContractDetailPage() {
     }
 
     void loadContract();
-  }, [contractId]);
+  }, [contractId, navigate]);
 
   const departureCheck = useMemo(() => {
     return contract?.checks?.find((check) => check.type_check === "departure") ?? null;
