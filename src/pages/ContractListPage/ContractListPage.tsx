@@ -21,7 +21,12 @@ function ContractListPage() {
 
     void load();
   }, []);
+const sortedContracts = [...contracts].sort((a, b) => {
+  const aNumber = Number(a.contract_number.split("-").at(-1));
+  const bNumber = Number(b.contract_number.split("-").at(-1));
 
+  return bNumber - aNumber;
+});
   return (
     <section className="contract-list">
       <header className="contract-list__header">
@@ -34,7 +39,7 @@ function ContractListPage() {
       {isLoading ? <p>Chargement...</p> : null}
 
       <div className="contract-list__grid">
-        {contracts.map((contract) => (
+        {sortedContracts.map((contract) => (
           <Link
             key={contract.id}
             to={`/contracts/${contract.id}`}
