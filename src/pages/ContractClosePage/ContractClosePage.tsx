@@ -31,18 +31,17 @@ function formatMoney(value?: number | string | null): string {
 function formatDateTime(value?: string | null): string {
   if (!value) return "-";
 
-  const cleanValue = value
-    .replace("T", " ")
-    .replace("+00:00", "")
-    .replace("+00", "");
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
 
-  const [datePart, timePart] = cleanValue.split(" ");
-  if (!datePart || !timePart) return value;
-
-  const [year, month, day] = datePart.split("-");
-  const [hour, minute] = timePart.split(":");
-
-  return `${day}/${month}/${year} ${hour}:${minute}`;
+  return date.toLocaleString("fr-FR", {
+    timeZone: "Europe/Paris",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function getRentalDays(contract: RentalContract): number {
