@@ -13,8 +13,12 @@ import "./ContractClosePage.css";
 
 function toNumber(value?: number | string | null): number {
   if (value === null || value === undefined || value === "") return 0;
-  const numericValue = typeof value === "number" ? value : Number(value);
-  return Number.isNaN(numericValue) ? 0 : numericValue;
+
+  const normalizedValue = typeof value === "number"
+    ? value
+    : Number(String(value).replace(",", "."));
+
+  return Number.isNaN(normalizedValue) ? 0 : normalizedValue;
 }
 
 function formatMoney(value?: number | string | null): string {
@@ -77,6 +81,10 @@ function buildExternalClosurePreview(contract: RentalContract): ContractClosure 
   const drivenKm = getExternalDrivenKm(contract);
   const extraKm = Math.max(drivenKm - includedKm, 0);
   const rentalPrice = toNumber(contract.rental_price);
+  const platformFee = toNumber(contract.platform_fee);
+  const netRevenue = contract.net_revenue !== null && contract.net_revenue !== undefined
+    ? toNumber(contract.net_revenue)
+    : Math.max(rentalPrice - platformFee, 0);
 
   return {
     id: 0,
@@ -87,14 +95,14 @@ function buildExternalClosurePreview(contract: RentalContract): ContractClosure 
     driven_km: drivenKm,
     included_km: includedKm,
     extra_km: extraKm,
-    rental_price: rentalPrice,
+    rental_price: netRevenue,
     extra_km_fee: 0,
     fuel_fee: 0,
     cleaning_fee: 0,
     damage_fee: 0,
     other_fee: 0,
     discount_amount: 0,
-    final_total: rentalPrice,
+    final_total: netRevenue,
     notes: "",
     status: "draft",
     created_at: contract.created_at,
@@ -143,10 +151,14 @@ function ContractClosePage() {
   }, [closure, contract]);
 
   const previewTotal = useMemo(() => {
-    if (!displayClosure) return 0;
+    if (!displayClosure || !contract) return 0;
+
+    const baseRevenue = contract.is_external
+      ? toNumber(contract.net_revenue) || toNumber(displayClosure.rental_price)
+      : toNumber(displayClosure.rental_price);
 
     return (
-      toNumber(displayClosure.rental_price) +
+      baseRevenue +
       toNumber(extraKmFee) +
       toNumber(fuelFee) +
       toNumber(cleaningFee) +
@@ -156,6 +168,7 @@ function ContractClosePage() {
     );
   }, [
     displayClosure,
+    contract,
     extraKmFee,
     fuelFee,
     cleaningFee,
@@ -370,7 +383,7 @@ function ContractClosePage() {
         <div className="contract-close-page__closed-banner">
           <div>
             <p className="contract-close-page__closed-label">Contrat clôturé</p>
-            <h3>Total final : {formatMoney(displayClosure.final_total)}</h3>
+            <h3>Total final : {formatMoney(previewTotal)}</h3>
             <p>
               La clôture est validée. Tu peux télécharger les PDF départ / retour ou revenir au contrat.
             </p>
@@ -468,7 +481,8 @@ function ContractClosePage() {
         <article className="contract-close-page__card">
           <h3>Total</h3>
           <p>
-            <strong>Prix location :</strong> {formatMoney(displayClosure?.rental_price)}
+            <strong>{isExternalContract ? "Revenu net :" : "Prix location :"}</strong>{" "}
+            {formatMoney(isExternalContract ? contract.net_revenue : displayClosure?.rental_price)}
           </p>
           <p>
             <strong>Total final :</strong>{" "}
