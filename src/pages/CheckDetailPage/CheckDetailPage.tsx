@@ -1,96 +1,75 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { downloadCheckPdf } from "../../api/checkApi";
-import { getContractById } from "../../api/contractApi";
-import type { RentalContract } from "../../types/contract";
-import "./ContractDetailPage.css";
+import { downloadCheckPdf, getCheckById } from "../../api/checkApi";
+import CheckFinalizeSection from "../../components/Check/CheckFinalizeSection";
+import CheckSignatureSection from "../../components/Check/CheckSignatureSection";
+import DamagePhotoViewer from "../../components/Check/DamagePhotoViewer";
+import type { Check, CheckPhoto, PhotoType } from "../../types/check";
+import "./CheckDetailPage.css";
 
-function formatStatus(status: RentalContract["status"]): string {
-  switch (status) {
-    case "draft":
-      return "Brouillon";
-    case "signed":
-      return "Signé";
-    case "cancelled":
-      return "Annulé";
-    default:
-      return status;
+function getPhotoLabel(photoType: PhotoType): string {
+  const labels: Record<PhotoType, string> = {
+    front: "Photo avant",
+    rear: "Photo arrière",
+    front_left_angle: "Angle avant gauche",
+    front_right_angle: "Angle avant droit",
+    rear_left_angle: "Angle arrière gauche",
+    rear_right_angle: "Angle arrière droit",
+    wheel_front_left: "Jante avant gauche",
+    wheel_front_right: "Jante avant droite",
+    wheel_rear_left: "Jante arrière gauche",
+    wheel_rear_right: "Jante arrière droite",
+    windshield: "Pare-brise",
+    front_seat: "Siège avant",
+    rear_seat: "Siège arrière",
+    trunk: "Coffre",
+    dashboard: "Tableau de bord",
+    other: "Photo supplémentaire",
+  };
+
+  return labels[photoType];
+}
+
+function formatCheckType(value: Check["type_check"]): string {
+  return value === "departure" ? "Départ" : "Retour";
+}
+
+function formatCheckStatus(value: Check["status"]): string {
+  return value === "completed" ? "Terminé" : "Brouillon";
+}
+
+function extractApiErrorMessage(error: any): string {
+  const detail = error?.response?.data?.detail;
+
+  if (typeof detail === "string") return detail;
+
+  if (Array.isArray(detail) && detail.length > 0) {
+    return detail
+      .map((item) => {
+        const location = Array.isArray(item?.loc) ? item.loc.join(" > ") : "body";
+        const message = item?.msg ?? "Erreur de validation";
+        return `${location}: ${message}`;
+      })
+      .join(" | ");
   }
+
+  return "Impossible de télécharger le PDF.";
 }
 
-function formatDateTime(value?: string | null): string {
-  if (!value) return "-";
+export default function CheckDetailPage() {
+  const { checkId } = useParams();
+  const navigate = useNavigate();
 
-  const cleanValue = value
-    .replace("T", " ")
-    .replace("+00:00", "")
-    .replace("+00", "");
-
-  const [datePart, timePart] = cleanValue.split(" ");
-  if (!datePart || !timePart) return value;
-
-  const [year, month, day] = datePart.split("-");
-  const [hour, minute] = timePart.split(":");
-
-  return `${day}/${month}/${year} ${hour}:${minute}`;
-}
-
-function formatDate(value?: string | null): string {
-  if (!value) return "-";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return date.toLocaleDateString("fr-FR");
-}
-
-function formatMoney(value?: number | string | null): string {
-  if (value === null || value === undefined || value === "") return "-";
-
-  const numericValue = typeof value === "number" ? value : Number(value);
-  if (Number.isNaN(numericValue)) return "-";
-
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-  }).format(numericValue);
-}
-
-function formatSource(contract: RentalContract): string {
-  if (!contract.is_external) return "Interne";
-
-  const source = String(contract.source || "").trim();
-
-  if (source === "roadstr") return "Roadstr";
-  if (source === "turo") return "Turo";
-  if (source === "other") return "Autre";
-
-  return source || "Externe";
-}
-
-function hasSecondaryDriver(contract: RentalContract): boolean {
-  return Boolean(
-    contract.secondary_driver_first_name ||
-      contract.secondary_driver_last_name ||
-      contract.secondary_license_number ||
-      contract.secondary_license_front_photo_url ||
-      contract.secondary_license_back_photo_url,
-  );
-}
-
-function ContractDetailPage() {
-  const { contractId } = useParams();
-
-  const [contract, setContract] = useState<RentalContract | null>(null);
+  const [check, setCheck] = useState<Check | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    async function loadContract() {
-      if (!contractId) {
-        setErrorMessage("Contrat introuvable.");
+    async function loadCheck() {
+      if (!checkId) {
+        setErrorMessage("Check introuvable.");
         setIsLoading(false);
         return;
       }
@@ -98,424 +77,190 @@ function ContractDetailPage() {
       try {
         setIsLoading(true);
         setErrorMessage("");
-        const data = await getContractById(Number(contractId));
-        setContract(data);
+        const data = await getCheckById(Number(checkId));
+        setCheck(data);
       } catch {
-        setErrorMessage("Impossible de charger le contrat.");
+        setErrorMessage("Impossible de charger le détail du check.");
       } finally {
         setIsLoading(false);
       }
     }
 
-    void loadContract();
-  }, [contractId]);
+    void loadCheck();
+  }, [checkId]);
 
-  const departureCheck = useMemo(() => {
-    return contract?.checks?.find((check) => check.type_check === "departure") ?? null;
-  }, [contract]);
+  const sortedPhotos = useMemo(() => {
+    return [...(check?.photos ?? [])].sort((a: CheckPhoto, b: CheckPhoto) => {
+      return a.display_order - b.display_order;
+    });
+  }, [check?.photos]);
 
-  const returnCheck = useMemo(() => {
-    return contract?.checks?.find((check) => check.type_check === "return") ?? null;
-  }, [contract]);
+  const totalDamages = useMemo(() => {
+    return sortedPhotos.reduce((count, photo) => {
+      return count + (photo.damages?.length ?? 0);
+    }, 0);
+  }, [sortedPhotos]);
 
-  async function handleDownloadPdf(checkId: number) {
+  const isCompleted = check?.status === "completed";
+  const canDownloadPdf = Boolean(check && isCompleted);
+
+  async function handleDownloadPdf() {
+    if (!check || !canDownloadPdf) return;
+
     try {
       setIsDownloadingPdf(true);
       setErrorMessage("");
-      await downloadCheckPdf(checkId);
-    } catch {
-      setErrorMessage("Impossible de télécharger le PDF.");
+      await downloadCheckPdf(check.id);
+    } catch (error: any) {
+      setErrorMessage(extractApiErrorMessage(error));
     } finally {
       setIsDownloadingPdf(false);
     }
   }
 
   if (isLoading) {
-    return <p className="contract-detail-page__state">Chargement...</p>;
+    return <p className="check-detail-page__state">Chargement du check...</p>;
   }
 
-  if (!contract) {
+  if (errorMessage && !check) {
     return (
-      <p className="contract-detail-page__state contract-detail-page__state--error">
-        {errorMessage || "Contrat introuvable."}
+      <p className="check-detail-page__state check-detail-page__state--error">
+        {errorMessage}
       </p>
     );
   }
 
-  const isExternalContract = Boolean(contract.is_external);
-  const secondaryDriverExists = hasSecondaryDriver(contract);
+  if (!check) {
+    return (
+      <p className="check-detail-page__state check-detail-page__state--error">
+        Check introuvable.
+      </p>
+    );
+  }
 
   return (
-    <section className="contract-detail-page">
-      <header className="contract-detail-page__header">
+    <section className="check-detail-page">
+      <header className="check-detail-page__header">
         <div>
-          <p className="contract-detail-page__eyebrow">
-            {isExternalContract ? "Contrat externe" : "Contrat"}
+          <p className="check-detail-page__eyebrow">Détail du check</p>
+          <h1 className="check-detail-page__title">Check #{check.id}</h1>
+          <p className="check-detail-page__description">
+            Type : {formatCheckType(check.type_check)} • Statut :{" "}
+            {formatCheckStatus(check.status)}
           </p>
-          <h2 className="contract-detail-page__title">{contract.contract_number}</h2>
         </div>
 
-        <span className={`contract-detail-page__status contract-detail-page__status--${contract.status}`}>
-          {formatStatus(contract.status)}
-        </span>
+        <div className="check-detail-page__header-actions">
+          {check.contract_id ? (
+            <Link
+              to={`/contracts/${check.contract_id}`}
+              className="check-detail-page__secondary-button"
+            >
+              Retour contrat
+            </Link>
+          ) : null}
+
+          {check.status === "draft" && check.contract_id ? (
+            <button
+              type="button"
+              className="check-detail-page__primary-button"
+              onClick={() =>
+                navigate(`/contracts/${check.contract_id}/check?type=${check.type_check}`)
+              }
+            >
+              Continuer le check
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="check-detail-page__primary-button"
+              onClick={handleDownloadPdf}
+              disabled={!canDownloadPdf || isDownloadingPdf}
+            >
+              {isDownloadingPdf
+                ? "Téléchargement..."
+                : canDownloadPdf
+                  ? "Télécharger le PDF"
+                  : "PDF disponible après finalisation"}
+            </button>
+          )}
+        </div>
       </header>
 
-      <div className="contract-detail-page__grid">
-        <article className="contract-detail-page__card">
-          <h3>{isExternalContract ? "Client / réservation" : "Client principal"}</h3>
-          <p>
-            <strong>Nom :</strong> {contract.customer_first_name} {contract.customer_last_name}
-          </p>
-          <p>
-            <strong>Email :</strong> {contract.customer_email || "-"}
-          </p>
-          <p>
-            <strong>Téléphone :</strong> {contract.customer_phone || "-"}
-          </p>
-          <p>
-            <strong>Adresse :</strong> {contract.customer_address || "-"}
-          </p>
-        </article>
-
-        <article className="contract-detail-page__card">
-          <h3>Véhicule</h3>
-          <p>
-            <strong>Modèle :</strong>{" "}
-            {contract.vehicle
-              ? `${contract.vehicle.brand} ${contract.vehicle.model}`
-              : `Véhicule #${contract.vehicle_id}`}
-          </p>
-          <p>
-            <strong>Immatriculation :</strong> {contract.vehicle?.plate_number || "-"}
-          </p>
-          <p>
-            <strong>Kilométrage :</strong>{" "}
-            {contract.vehicle?.current_mileage != null
-              ? `${contract.vehicle.current_mileage.toLocaleString("fr-FR")} km`
-              : "-"}
-          </p>
-        </article>
-
-        <article className="contract-detail-page__card">
-          <h3>Location</h3>
-          <p>
-            <strong>Départ :</strong> {formatDateTime(contract.start_date)}
-          </p>
-          <p>
-            <strong>Retour :</strong> {formatDateTime(contract.end_date)}
-          </p>
-          <p>
-            <strong>Prix :</strong> {formatMoney(contract.rental_price)}
-          </p>
-          <p>
-            <strong>Type :</strong> {formatSource(contract)}
-          </p>
-        </article>
-
-        <article className="contract-detail-page__card">
-          <h3>{isExternalContract ? "Plateforme" : "Récap financier"}</h3>
-
-          {isExternalContract ? (
-            <>
-              <p>
-                <strong>Prestataire :</strong> {formatSource(contract)}
-              </p>
-              <p>
-                <strong>Référence :</strong> {contract.external_platform_reference || "-"}
-              </p>
-              <p>
-                <strong>Commission :</strong> {formatMoney(contract.platform_fee)}
-              </p>
-              <p>
-                <strong>Revenu net :</strong> {formatMoney(contract.net_revenue)}
-              </p>
-            </>
-          ) : (
-            <>
-              <p>
-                <strong>Caution :</strong> {formatMoney(contract.deposit_amount)}
-              </p>
-              <p>
-                <strong>Franchise :</strong> {formatMoney(contract.franchise_amount)}
-              </p>
-              <p>
-                <strong>Frais de livraison :</strong> {formatMoney(contract.delivery_fee)}
-              </p>
-            </>
-          )}
-        </article>
-
-        {isExternalContract ? (
-          <article className="contract-detail-page__card contract-detail-page__card--full">
-            <h3>Kilométrage externe</h3>
-            <p>
-              <strong>Km départ :</strong>{" "}
-              {contract.external_start_mileage != null
-                ? `${contract.external_start_mileage.toLocaleString("fr-FR")} km`
-                : "-"}
-            </p>
-            <p>
-              <strong>Km retour :</strong>{" "}
-              {contract.external_end_mileage != null
-                ? `${contract.external_end_mileage.toLocaleString("fr-FR")} km`
-                : "-"}
-            </p>
-            <p>
-              <strong>Km parcourus :</strong>{" "}
-              {contract.external_start_mileage != null && contract.external_end_mileage != null
-                ? `${Math.max(
-                    contract.external_end_mileage - contract.external_start_mileage,
-                    0,
-                  ).toLocaleString("fr-FR")} km`
-                : "-"}
-            </p>
-          </article>
-        ) : (
-          <article className="contract-detail-page__card contract-detail-page__card--full">
-            <h3>Permis principal</h3>
-            <p>
-              <strong>Numéro :</strong> {contract.license_number || "-"}
-            </p>
-            <p>
-              <strong>Date de délivrance :</strong> {formatDate(contract.license_issue_date)}
-            </p>
-            <p>
-              <strong>Pays :</strong> {contract.license_country || "-"}
-            </p>
-
-            <div className="contract-detail-page__subgrid">
-              <div>
-                <p>
-                  <strong>Recto</strong>
-                </p>
-                {contract.license_front_photo_url ? (
-                  <div className="contract-detail-page__image-wrapper">
-                    <img
-                      src={contract.license_front_photo_url}
-                      alt="Permis principal recto"
-                      className="contract-detail-page__image"
-                    />
-                  </div>
-                ) : (
-                  <p className="contract-detail-page__muted">Aucun recto.</p>
-                )}
-              </div>
-
-              <div>
-                <p>
-                  <strong>Verso</strong>
-                </p>
-                {contract.license_back_photo_url ? (
-                  <div className="contract-detail-page__image-wrapper">
-                    <img
-                      src={contract.license_back_photo_url}
-                      alt="Permis principal verso"
-                      className="contract-detail-page__image"
-                    />
-                  </div>
-                ) : (
-                  <p className="contract-detail-page__muted">Aucun verso.</p>
-                )}
-              </div>
-            </div>
-          </article>
-        )}
-
-        <article className="contract-detail-page__card">
-          <h3>Remise & restitution</h3>
-          <p>
-            <strong>Lieu de remise :</strong> {contract.pickup_location || "-"}
-          </p>
-          <p>
-            <strong>Lieu de restitution :</strong> {contract.return_location || "-"}
-          </p>
-          <p>
-            <strong>Créé le :</strong> {formatDateTime(contract.created_at)}
-          </p>
-          <p>
-            <strong>Mis à jour le :</strong> {formatDateTime(contract.updated_at)}
-          </p>
-        </article>
-
-        {!isExternalContract ? (
-          <article className="contract-detail-page__card">
-            <h3>États des lieux</h3>
-            <p>
-              <strong>Départ :</strong>{" "}
-              {departureCheck ? `Check #${departureCheck.id} - ${departureCheck.status}` : "Non réalisé"}
-            </p>
-            <p>
-              <strong>Retour :</strong>{" "}
-              {returnCheck ? `Check #${returnCheck.id} - ${returnCheck.status}` : "Non réalisé"}
-            </p>
-          </article>
-        ) : (
-          <article className="contract-detail-page__card">
-            <h3>Gestion</h3>
-            <p className="contract-detail-page__muted">
-              Contrat externe : pas d’état des lieux interne à réaliser. Va directement sur
-              la page de gestion pour ajouter les frais et clôturer.
-            </p>
-          </article>
-        )}
-
-        {!isExternalContract && secondaryDriverExists ? (
-          <article className="contract-detail-page__card contract-detail-page__card--full">
-            <h3>Conducteur secondaire</h3>
-
-            <p>
-              <strong>Nom :</strong> {contract.secondary_driver_first_name || "-"}{" "}
-              {contract.secondary_driver_last_name || ""}
-            </p>
-            <p>
-              <strong>Email :</strong> {contract.secondary_driver_email || "-"}
-            </p>
-            <p>
-              <strong>Téléphone :</strong> {contract.secondary_driver_phone || "-"}
-            </p>
-            <p>
-              <strong>Permis :</strong> {contract.secondary_license_number || "-"}
-            </p>
-            <p>
-              <strong>Date de délivrance :</strong> {formatDate(contract.secondary_license_issue_date)}
-            </p>
-            <p>
-              <strong>Pays permis :</strong> {contract.secondary_license_country || "-"}
-            </p>
-
-            <div className="contract-detail-page__subgrid">
-              <div>
-                <p>
-                  <strong>Recto</strong>
-                </p>
-                {contract.secondary_license_front_photo_url ? (
-                  <div className="contract-detail-page__image-wrapper">
-                    <img
-                      src={contract.secondary_license_front_photo_url}
-                      alt="Permis secondaire recto"
-                      className="contract-detail-page__image"
-                    />
-                  </div>
-                ) : (
-                  <p className="contract-detail-page__muted">Aucun recto.</p>
-                )}
-              </div>
-
-              <div>
-                <p>
-                  <strong>Verso</strong>
-                </p>
-                {contract.secondary_license_back_photo_url ? (
-                  <div className="contract-detail-page__image-wrapper">
-                    <img
-                      src={contract.secondary_license_back_photo_url}
-                      alt="Permis secondaire verso"
-                      className="contract-detail-page__image"
-                    />
-                  </div>
-                ) : (
-                  <p className="contract-detail-page__muted">Aucun verso.</p>
-                )}
-              </div>
-            </div>
-          </article>
-        ) : null}
-
-        {contract.terms_and_conditions ? (
-          <article className="contract-detail-page__card contract-detail-page__card--full">
-            <h3>Conditions / remarques</h3>
-            <p className="contract-detail-page__terms">{contract.terms_and_conditions}</p>
-          </article>
-        ) : null}
-      </div>
+      {!canDownloadPdf ? (
+        <p className="check-detail-page__state">
+          Ajoute les photos obligatoires puis finalise le check pour générer le PDF.
+        </p>
+      ) : null}
 
       {errorMessage ? (
-        <p className="contract-detail-page__state contract-detail-page__state--error">
+        <p className="check-detail-page__state check-detail-page__state--error">
           {errorMessage}
         </p>
       ) : null}
 
-      <div className="contract-detail-page__actions">
-        <Link to="/contracts" className="contract-detail-page__secondary-button">
-          Retour contrats
-        </Link>
+      <section className="check-detail-page__summary">
+        <div className="check-detail-page__summary-card">
+          <strong>Kilométrage</strong>
+          <span>{check.mileage} km</span>
+        </div>
 
-        {isExternalContract ? (
-          <Link
-            to={`/contracts/${contract.id}/close`}
-            className="contract-detail-page__primary-button"
-          >
-            Gérer / clôturer le contrat externe
-          </Link>
+        <div className="check-detail-page__summary-card">
+          <strong>Carburant</strong>
+          <span>{check.fuel_level}</span>
+        </div>
+
+        <div className="check-detail-page__summary-card">
+          <strong>Propreté</strong>
+          <span>{check.cleanliness}</span>
+        </div>
+
+        <div className="check-detail-page__summary-card">
+          <strong>Photos</strong>
+          <span>{sortedPhotos.length}</span>
+        </div>
+
+        <div className="check-detail-page__summary-card">
+          <strong>Dégâts</strong>
+          <span>{totalDamages}</span>
+        </div>
+      </section>
+
+      {check.notes ? (
+        <section className="check-detail-page__notes">
+          <h2>Notes</h2>
+          <p>{check.notes}</p>
+        </section>
+      ) : null}
+
+      <CheckFinalizeSection
+        check={check}
+        onCompleted={(updatedCheck) => {
+          setCheck(updatedCheck);
+          setErrorMessage("");
+        }}
+      />
+
+      <CheckSignatureSection
+        check={check}
+        onSigned={(updatedCheck) => setCheck(updatedCheck)}
+      />
+
+      <section className="check-detail-page__photos">
+        {sortedPhotos.length === 0 ? (
+          <div className="check-detail-page__empty">
+            Aucune photo enregistrée pour ce check.
+          </div>
         ) : (
-          <>
-            {departureCheck?.status === "completed" && returnCheck?.status === "completed" ? (
-              <Link
-                to={`/contracts/${contract.id}/close`}
-                className="contract-detail-page__primary-button"
-              >
-                Clôturer le contrat
-              </Link>
-            ) : null}
-
-            {!departureCheck ? (
-              <Link
-                to={`/contracts/${contract.id}/check?type=departure`}
-                className="contract-detail-page__primary-button"
-              >
-                Faire l’état des lieux de départ
-              </Link>
-            ) : departureCheck.status !== "completed" ? (
-              <Link
-                to={`/contracts/${contract.id}/check?type=departure`}
-                className="contract-detail-page__primary-button"
-              >
-                Reprendre l’état des lieux de départ
-              </Link>
-            ) : (
-              <button
-                type="button"
-                className="contract-detail-page__primary-button"
-                onClick={() => void handleDownloadPdf(departureCheck.id)}
-                disabled={isDownloadingPdf}
-              >
-                {isDownloadingPdf ? "Téléchargement..." : "Télécharger le PDF départ"}
-              </button>
-            )}
-
-            {departureCheck?.status === "completed" && !returnCheck ? (
-              <Link
-                to={`/contracts/${contract.id}/check?type=return`}
-                className="contract-detail-page__secondary-button"
-              >
-                Faire l’état des lieux de retour
-              </Link>
-            ) : null}
-
-            {returnCheck && returnCheck.status !== "completed" ? (
-              <Link
-                to={`/contracts/${contract.id}/check?type=return`}
-                className="contract-detail-page__secondary-button"
-              >
-                Reprendre l’état des lieux de retour
-              </Link>
-            ) : null}
-
-            {returnCheck?.status === "completed" ? (
-              <button
-                type="button"
-                className="contract-detail-page__secondary-button"
-                onClick={() => void handleDownloadPdf(returnCheck.id)}
-                disabled={isDownloadingPdf}
-              >
-                {isDownloadingPdf ? "Téléchargement..." : "Télécharger le PDF retour"}
-              </button>
-            ) : null}
-          </>
+          sortedPhotos.map((photo) => (
+            <DamagePhotoViewer
+              key={photo.id}
+              photo={photo}
+              title={getPhotoLabel(photo.photo_type)}
+            />
+          ))
         )}
-      </div>
+      </section>
     </section>
   );
 }
-
-export default ContractDetailPage;
