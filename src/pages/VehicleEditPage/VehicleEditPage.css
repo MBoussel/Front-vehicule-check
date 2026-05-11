@@ -31,7 +31,29 @@
 .vehicle-edit-page__form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
+}
+
+.vehicle-edit-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vehicle-edit-page__section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vehicle-edit-page__section-header h3 {
+  margin: 0;
+  font-size: 1.12rem;
+}
+
+.vehicle-edit-page__section-header p {
+  margin: 0;
+  color: var(--text-soft);
 }
 
 .vehicle-edit-page__grid {
@@ -86,6 +108,7 @@
   border-radius: 16px;
   padding: 0 18px;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .vehicle-edit-page__secondary-button {
