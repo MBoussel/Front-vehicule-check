@@ -18,6 +18,7 @@ import ContractClosePage from "../pages/ContractClosePage/ContractClosePage";
 
 import CheckCreatePage from "../pages/CheckCreatePage/CheckCreatePage";
 import CheckDetailPage from "../pages/CheckDetailPage/CheckDetailPage";
+import DashboardPage from "../pages/DashboardPage/DashboardPage";
 
 
 function ProtectedLayout() {
@@ -74,6 +75,9 @@ export const router = createBrowserRouter([
       // CHECKS
       { path: "contracts/:contractId/check", element: <CheckCreatePage /> },
       { path: "checks/:checkId", element: <CheckDetailPage /> },
+
+      //DASHBOARD
+      {path:"/dashboard", element: <DashboardPage />} 
     ],
   },
 ]);

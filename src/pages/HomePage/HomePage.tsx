@@ -53,6 +53,9 @@ function HomePage() {
 </Link>
         </article>
       </div>
+      <Link to="/dashboard" className="home-page__button">
+  Dashboard
+</Link>
     </section>
   );
 }
