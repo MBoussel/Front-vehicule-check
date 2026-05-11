@@ -48,6 +48,9 @@ function HomePage() {
               Voir les contrats
             </Link>
           </div>
+          <Link to="/contracts/new" className="home-page__button">
+  Nouveau contrat
+</Link>
         </article>
       </div>
     </section>
