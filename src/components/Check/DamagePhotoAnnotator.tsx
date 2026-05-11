@@ -22,6 +22,7 @@ interface DamagePhotoAnnotatorProps {
 
 const DAMAGE_TYPE_OPTIONS: Array<{ value: DamageType; label: string }> = [
   { value: "scratch", label: "Rayure" },
+  { value: "impact", label: "Impact" },
   { value: "dent", label: "Enfoncement" },
   { value: "crack", label: "Fissure" },
   { value: "broken", label: "Cassé" },
@@ -44,6 +45,7 @@ function clampPercent(value: number): number {
 function buildDefaultLabel(type: DamageType, severity: DamageSeverity): string {
   const typeMap: Record<DamageType, string> = {
     scratch: "Rayure",
+    impact: "Impact", 
     dent: "Enfoncement",
     crack: "Fissure",
     broken: "Cassé",

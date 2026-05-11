@@ -2,6 +2,7 @@ export type DamageSeverity = "light" | "medium" | "heavy";
 
 export type DamageType =
   | "scratch"
+  | "impact"
   | "dent"
   | "crack"
   | "broken"
