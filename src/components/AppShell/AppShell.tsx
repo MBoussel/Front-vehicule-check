@@ -61,6 +61,16 @@ function AppShell() {
         >
           Contrats
         </NavLink>
+        <NavLink
+  to="/dashboard"
+  className={({ isActive }) =>
+    isActive
+      ? "app-shell__nav-link app-shell__nav-link--active"
+      : "app-shell__nav-link"
+  }
+>
+  Dashboard
+</NavLink>
       </nav>
 
       <main className="app-shell__main">

@@ -53,9 +53,18 @@ function HomePage() {
 </Link>
         </article>
       </div>
+      <article className="home-page__card">
+         <div className="home-page__card-content">
+            <h3>Dashboard</h3>
+            <p>
+  Visualise les revenus, kilomètres parcourus, performances des véhicules
+  et statistiques mensuelles grâce à un dashboard moderne et interactif.
+</p>
+          </div>
       <Link to="/dashboard" className="home-page__button">
   Dashboard
 </Link>
+</article>
     </section>
   );
 }
