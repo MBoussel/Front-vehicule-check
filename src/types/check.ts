@@ -38,7 +38,13 @@ export type PhotoType =
 
 export type ApiDamageSeverity = "minor" | "moderate" | "severe";
 
-export type DamageType = "scratch" | "dent" | "crack" | "broken" | "other";
+export type DamageType =
+  | "scratch"
+  | "impact"
+  | "dent"
+  | "crack"
+  | "broken"
+  | "other";
 
 export interface CheckPhotoDamage {
   id: number;

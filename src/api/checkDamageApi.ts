@@ -2,7 +2,13 @@ import { http } from "./http";
 import type { DamagePoint } from "../types/checkDamage";
 
 type ApiDamageSeverity = "minor" | "moderate" | "severe";
-type ApiDamageType = "scratch" | "dent" | "crack" | "broken" | "other";
+type ApiDamageType =
+  | "scratch"
+  | "impact"
+  | "dent"
+  | "crack"
+  | "broken"
+  | "other";
 
 interface CreatePhotoDamagePayload {
   x_percent: number;
@@ -29,6 +35,8 @@ function mapDamageTypeToApi(type: DamagePoint["type"]): ApiDamageType {
   switch (type) {
     case "scratch":
       return "scratch";
+      case "impact":
+  return "impact";
     case "dent":
       return "dent";
     case "crack":

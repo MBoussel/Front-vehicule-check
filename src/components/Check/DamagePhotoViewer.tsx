@@ -29,6 +29,8 @@ function getDamageTypeLabel(type: DamageType | null): string {
   switch (type) {
     case "scratch":
       return "Rayure";
+      case "impact":
+  return "impact";
     case "dent":
       return "Enfoncement";
     case "crack":
