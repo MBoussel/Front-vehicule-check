@@ -469,6 +469,10 @@ function ContractClosePage() {
               <strong>Référence :</strong> {contract.external_platform_reference || "-"}
             </p>
             <p>
+  <strong>Prix total prestation :</strong><br />
+  {formatMoney(contract.rental_price)}
+</p>
+            <p>
               <strong>Commission :</strong> {formatMoney(contract.platform_fee)}
             </p>
             <p>
