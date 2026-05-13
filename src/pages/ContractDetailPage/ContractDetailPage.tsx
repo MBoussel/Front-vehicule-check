@@ -1,8 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { downloadCheckPdf } from "../../api/checkApi";
-import { getContractById, getContractClosure } from "../../api/contractApi";
+import {
+  getContractById,
+  getContractClosure,
+  updateContract,
+} from "../../api/contractApi";
+import { uploadLicensePhoto } from "../../api/uploadApi";
 import type { RentalContract } from "../../types/contract";
 import "./ContractDetailPage.css";
 
@@ -85,7 +96,30 @@ function ContractDetailPage() {
   const [contract, setContract] = useState<RentalContract | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isSavingLicense, setIsSavingLicense] = useState(false);
+  const [isSavingSecondaryDriver, setIsSavingSecondaryDriver] = useState(false);
+  const [isUploadingPrimaryLicense, setIsUploadingPrimaryLicense] = useState(false);
+  const [isUploadingSecondaryLicense, setIsUploadingSecondaryLicense] = useState(false);
+
+  const [isEditingLicense, setIsEditingLicense] = useState(false);
+  const [isEditingSecondaryDriver, setIsEditingSecondaryDriver] = useState(false);
+
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [licenseIssueDate, setLicenseIssueDate] = useState("");
+  const [licenseCountry, setLicenseCountry] = useState("France");
+  const [licenseFrontPhotoUrl, setLicenseFrontPhotoUrl] = useState("");
+  const [licenseBackPhotoUrl, setLicenseBackPhotoUrl] = useState("");
+
+  const [secondaryDriverFirstName, setSecondaryDriverFirstName] = useState("");
+  const [secondaryDriverLastName, setSecondaryDriverLastName] = useState("");
+  const [secondaryLicenseNumber, setSecondaryLicenseNumber] = useState("");
+  const [secondaryLicenseIssueDate, setSecondaryLicenseIssueDate] = useState("");
+  const [secondaryLicenseCountry, setSecondaryLicenseCountry] = useState("France");
+  const [secondaryLicenseFrontPhotoUrl, setSecondaryLicenseFrontPhotoUrl] = useState("");
+  const [secondaryLicenseBackPhotoUrl, setSecondaryLicenseBackPhotoUrl] = useState("");
 
   useEffect(() => {
     async function loadContract() {
@@ -98,6 +132,7 @@ function ContractDetailPage() {
       try {
         setIsLoading(true);
         setErrorMessage("");
+        setSuccessMessage("");
 
         const data = await getContractById(Number(contractId));
 
@@ -123,6 +158,24 @@ function ContractDetailPage() {
     void loadContract();
   }, [contractId, navigate]);
 
+  useEffect(() => {
+    if (!contract) return;
+
+    setLicenseNumber(contract.license_number || "");
+    setLicenseIssueDate(contract.license_issue_date || "");
+    setLicenseCountry(contract.license_country || "France");
+    setLicenseFrontPhotoUrl(contract.license_front_photo_url || "");
+    setLicenseBackPhotoUrl(contract.license_back_photo_url || "");
+
+    setSecondaryDriverFirstName(contract.secondary_driver_first_name || "");
+    setSecondaryDriverLastName(contract.secondary_driver_last_name || "");
+    setSecondaryLicenseNumber(contract.secondary_license_number || "");
+    setSecondaryLicenseIssueDate(contract.secondary_license_issue_date || "");
+    setSecondaryLicenseCountry(contract.secondary_license_country || "France");
+    setSecondaryLicenseFrontPhotoUrl(contract.secondary_license_front_photo_url || "");
+    setSecondaryLicenseBackPhotoUrl(contract.secondary_license_back_photo_url || "");
+  }, [contract]);
+
   const departureCheck = useMemo(() => {
     return contract?.checks?.find((check) => check.type_check === "departure") ?? null;
   }, [contract]);
@@ -131,11 +184,122 @@ function ContractDetailPage() {
     return contract?.checks?.find((check) => check.type_check === "return") ?? null;
   }, [contract]);
 
+  async function refreshContract() {
+    if (!contractId) return;
+
+    const data = await getContractById(Number(contractId));
+    setContract(data);
+  }
+
+  async function handleUploadPrimaryLicense(
+    event: ChangeEvent<HTMLInputElement>,
+    setter: (value: string) => void,
+  ) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setErrorMessage("");
+      setSuccessMessage("");
+      setIsUploadingPrimaryLicense(true);
+
+      const result = await uploadLicensePhoto(file);
+      setter(result.file_url);
+    } catch {
+      setErrorMessage("Erreur pendant l’upload du permis principal.");
+    } finally {
+      setIsUploadingPrimaryLicense(false);
+    }
+  }
+
+  async function handleUploadSecondaryLicense(
+    event: ChangeEvent<HTMLInputElement>,
+    setter: (value: string) => void,
+  ) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setErrorMessage("");
+      setSuccessMessage("");
+      setIsUploadingSecondaryLicense(true);
+
+      const result = await uploadLicensePhoto(file);
+      setter(result.file_url);
+    } catch {
+      setErrorMessage("Erreur pendant l’upload du permis secondaire.");
+    } finally {
+      setIsUploadingSecondaryLicense(false);
+    }
+  }
+
+  async function handleSaveLicense(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!contract) return;
+
+    try {
+      setErrorMessage("");
+      setSuccessMessage("");
+      setIsSavingLicense(true);
+
+      const updatedContract = await updateContract(contract.id, {
+        contract_number: contract.contract_number,
+        license_number: licenseNumber.trim() || undefined,
+        license_issue_date: licenseIssueDate || undefined,
+        license_country: licenseCountry.trim() || undefined,
+        license_front_photo_url: licenseFrontPhotoUrl || undefined,
+        license_back_photo_url: licenseBackPhotoUrl || undefined,
+      });
+
+      setContract(updatedContract);
+      setIsEditingLicense(false);
+      setSuccessMessage("Permis principal mis à jour.");
+    } catch {
+      setErrorMessage("Impossible de mettre à jour le permis principal.");
+    } finally {
+      setIsSavingLicense(false);
+    }
+  }
+
+  async function handleSaveSecondaryDriver(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!contract) return;
+
+    try {
+      setErrorMessage("");
+      setSuccessMessage("");
+      setIsSavingSecondaryDriver(true);
+
+      const updatedContract = await updateContract(contract.id, {
+        contract_number: contract.contract_number,
+        secondary_driver_first_name: secondaryDriverFirstName.trim() || undefined,
+        secondary_driver_last_name: secondaryDriverLastName.trim() || undefined,
+        secondary_license_number: secondaryLicenseNumber.trim() || undefined,
+        secondary_license_issue_date: secondaryLicenseIssueDate || undefined,
+        secondary_license_country: secondaryLicenseCountry.trim() || undefined,
+        secondary_license_front_photo_url: secondaryLicenseFrontPhotoUrl || undefined,
+        secondary_license_back_photo_url: secondaryLicenseBackPhotoUrl || undefined,
+      });
+
+      setContract(updatedContract);
+      setIsEditingSecondaryDriver(false);
+      setSuccessMessage("Conducteur secondaire mis à jour.");
+    } catch {
+      setErrorMessage("Impossible de mettre à jour le conducteur secondaire.");
+    } finally {
+      setIsSavingSecondaryDriver(false);
+    }
+  }
+
   async function handleDownloadPdf(checkId: number) {
     try {
       setIsDownloadingPdf(true);
       setErrorMessage("");
+      setSuccessMessage("");
       await downloadCheckPdf(checkId);
+      await refreshContract();
     } catch {
       setErrorMessage("Impossible de télécharger le PDF.");
     } finally {
@@ -237,6 +401,9 @@ function ContractDetailPage() {
                 <strong>Référence :</strong> {contract.external_platform_reference || "-"}
               </p>
               <p>
+                <strong>Prix total prestation :</strong> {formatMoney(contract.rental_price)}
+              </p>
+              <p>
                 <strong>Commission :</strong> {formatMoney(contract.platform_fee)}
               </p>
               <p>
@@ -285,52 +452,148 @@ function ContractDetailPage() {
           </article>
         ) : (
           <article className="contract-detail-page__card contract-detail-page__card--full">
-            <h3>Permis principal</h3>
-            <p>
-              <strong>Numéro :</strong> {contract.license_number || "-"}
-            </p>
-            <p>
-              <strong>Date de délivrance :</strong> {formatDate(contract.license_issue_date)}
-            </p>
-            <p>
-              <strong>Pays :</strong> {contract.license_country || "-"}
-            </p>
+            <div className="contract-detail-page__card-header">
+              <h3>Permis principal</h3>
 
-            <div className="contract-detail-page__subgrid">
-              <div>
-                <p>
-                  <strong>Recto</strong>
-                </p>
-                {contract.license_front_photo_url ? (
-                  <div className="contract-detail-page__image-wrapper">
-                    <img
-                      src={contract.license_front_photo_url}
-                      alt="Permis principal recto"
-                      className="contract-detail-page__image"
-                    />
-                  </div>
-                ) : (
-                  <p className="contract-detail-page__muted">Aucun recto.</p>
-                )}
-              </div>
-
-              <div>
-                <p>
-                  <strong>Verso</strong>
-                </p>
-                {contract.license_back_photo_url ? (
-                  <div className="contract-detail-page__image-wrapper">
-                    <img
-                      src={contract.license_back_photo_url}
-                      alt="Permis principal verso"
-                      className="contract-detail-page__image"
-                    />
-                  </div>
-                ) : (
-                  <p className="contract-detail-page__muted">Aucun verso.</p>
-                )}
-              </div>
+              <button
+                type="button"
+                className="contract-detail-page__secondary-button"
+                onClick={() => setIsEditingLicense((current) => !current)}
+              >
+                {isEditingLicense
+                  ? "Masquer"
+                  : contract.license_number
+                    ? "Modifier le permis"
+                    : "Ajouter le permis"}
+              </button>
             </div>
+
+            {!isEditingLicense ? (
+              <>
+                <p>
+                  <strong>Numéro :</strong> {contract.license_number || "-"}
+                </p>
+                <p>
+                  <strong>Date de délivrance :</strong> {formatDate(contract.license_issue_date)}
+                </p>
+                <p>
+                  <strong>Pays :</strong> {contract.license_country || "-"}
+                </p>
+
+                <div className="contract-detail-page__subgrid">
+                  <div>
+                    <p>
+                      <strong>Recto</strong>
+                    </p>
+                    {contract.license_front_photo_url ? (
+                      <div className="contract-detail-page__image-wrapper">
+                        <img
+                          src={contract.license_front_photo_url}
+                          alt="Permis principal recto"
+                          className="contract-detail-page__image"
+                        />
+                      </div>
+                    ) : (
+                      <p className="contract-detail-page__muted">Aucun recto.</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <p>
+                      <strong>Verso</strong>
+                    </p>
+                    {contract.license_back_photo_url ? (
+                      <div className="contract-detail-page__image-wrapper">
+                        <img
+                          src={contract.license_back_photo_url}
+                          alt="Permis principal verso"
+                          className="contract-detail-page__image"
+                        />
+                      </div>
+                    ) : (
+                      <p className="contract-detail-page__muted">Aucun verso.</p>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <form className="contract-detail-page__edit-form" onSubmit={handleSaveLicense}>
+                <label className="contract-detail-page__field">
+                  <span>Numéro de permis</span>
+                  <input
+                    type="text"
+                    value={licenseNumber}
+                    onChange={(event) => setLicenseNumber(event.target.value)}
+                  />
+                </label>
+
+                <label className="contract-detail-page__field">
+                  <span>Date de délivrance</span>
+                  <input
+                    type="date"
+                    value={licenseIssueDate}
+                    onChange={(event) => setLicenseIssueDate(event.target.value)}
+                  />
+                </label>
+
+                <label className="contract-detail-page__field">
+                  <span>Pays</span>
+                  <input
+                    type="text"
+                    value={licenseCountry}
+                    onChange={(event) => setLicenseCountry(event.target.value)}
+                  />
+                </label>
+
+                <div className="contract-detail-page__subgrid">
+                  <label className="contract-detail-page__field">
+                    <span>Recto</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) =>
+                        void handleUploadPrimaryLicense(event, setLicenseFrontPhotoUrl)
+                      }
+                    />
+                    <small>
+                      {isUploadingPrimaryLicense
+                        ? "Upload en cours..."
+                        : licenseFrontPhotoUrl
+                          ? "Recto enregistré."
+                          : "Aucun recto."}
+                    </small>
+                  </label>
+
+                  <label className="contract-detail-page__field">
+                    <span>Verso</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) =>
+                        void handleUploadPrimaryLicense(event, setLicenseBackPhotoUrl)
+                      }
+                    />
+                    <small>
+                      {isUploadingPrimaryLicense
+                        ? "Upload en cours..."
+                        : licenseBackPhotoUrl
+                          ? "Verso enregistré."
+                          : "Aucun verso."}
+                    </small>
+                  </label>
+                </div>
+
+                <div className="contract-detail-page__actions">
+                  <button
+                    type="submit"
+                    className="contract-detail-page__primary-button"
+                    disabled={isSavingLicense || isUploadingPrimaryLicense}
+                  >
+                    {isSavingLicense ? "Enregistrement..." : "Enregistrer le permis"}
+                  </button>
+                </div>
+              </form>
+            )}
           </article>
         )}
 
@@ -372,65 +635,190 @@ function ContractDetailPage() {
           </article>
         )}
 
-        {!isExternalContract && secondaryDriverExists ? (
+        {!isExternalContract ? (
           <article className="contract-detail-page__card contract-detail-page__card--full">
-            <h3>Conducteur secondaire</h3>
+            <div className="contract-detail-page__card-header">
+              <h3>Conducteur secondaire</h3>
 
-            <p>
-              <strong>Nom :</strong> {contract.secondary_driver_first_name || "-"}{" "}
-              {contract.secondary_driver_last_name || ""}
-            </p>
-            <p>
-              <strong>Email :</strong> {contract.secondary_driver_email || "-"}
-            </p>
-            <p>
-              <strong>Téléphone :</strong> {contract.secondary_driver_phone || "-"}
-            </p>
-            <p>
-              <strong>Permis :</strong> {contract.secondary_license_number || "-"}
-            </p>
-            <p>
-              <strong>Date de délivrance :</strong> {formatDate(contract.secondary_license_issue_date)}
-            </p>
-            <p>
-              <strong>Pays permis :</strong> {contract.secondary_license_country || "-"}
-            </p>
-
-            <div className="contract-detail-page__subgrid">
-              <div>
-                <p>
-                  <strong>Recto</strong>
-                </p>
-                {contract.secondary_license_front_photo_url ? (
-                  <div className="contract-detail-page__image-wrapper">
-                    <img
-                      src={contract.secondary_license_front_photo_url}
-                      alt="Permis secondaire recto"
-                      className="contract-detail-page__image"
-                    />
-                  </div>
-                ) : (
-                  <p className="contract-detail-page__muted">Aucun recto.</p>
-                )}
-              </div>
-
-              <div>
-                <p>
-                  <strong>Verso</strong>
-                </p>
-                {contract.secondary_license_back_photo_url ? (
-                  <div className="contract-detail-page__image-wrapper">
-                    <img
-                      src={contract.secondary_license_back_photo_url}
-                      alt="Permis secondaire verso"
-                      className="contract-detail-page__image"
-                    />
-                  </div>
-                ) : (
-                  <p className="contract-detail-page__muted">Aucun verso.</p>
-                )}
-              </div>
+              <button
+                type="button"
+                className="contract-detail-page__secondary-button"
+                onClick={() => setIsEditingSecondaryDriver((current) => !current)}
+              >
+                {isEditingSecondaryDriver
+                  ? "Masquer"
+                  : secondaryDriverExists
+                    ? "Modifier le conducteur secondaire"
+                    : "Ajouter un conducteur secondaire"}
+              </button>
             </div>
+
+            {!isEditingSecondaryDriver ? (
+              secondaryDriverExists ? (
+                <>
+                  <p>
+                    <strong>Nom :</strong> {contract.secondary_driver_first_name || "-"}{" "}
+                    {contract.secondary_driver_last_name || ""}
+                  </p>
+                  <p>
+                    <strong>Permis :</strong> {contract.secondary_license_number || "-"}
+                  </p>
+                  <p>
+                    <strong>Date de délivrance :</strong>{" "}
+                    {formatDate(contract.secondary_license_issue_date)}
+                  </p>
+                  <p>
+                    <strong>Pays permis :</strong> {contract.secondary_license_country || "-"}
+                  </p>
+
+                  <div className="contract-detail-page__subgrid">
+                    <div>
+                      <p>
+                        <strong>Recto</strong>
+                      </p>
+                      {contract.secondary_license_front_photo_url ? (
+                        <div className="contract-detail-page__image-wrapper">
+                          <img
+                            src={contract.secondary_license_front_photo_url}
+                            alt="Permis secondaire recto"
+                            className="contract-detail-page__image"
+                          />
+                        </div>
+                      ) : (
+                        <p className="contract-detail-page__muted">Aucun recto.</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <p>
+                        <strong>Verso</strong>
+                      </p>
+                      {contract.secondary_license_back_photo_url ? (
+                        <div className="contract-detail-page__image-wrapper">
+                          <img
+                            src={contract.secondary_license_back_photo_url}
+                            alt="Permis secondaire verso"
+                            className="contract-detail-page__image"
+                          />
+                        </div>
+                      ) : (
+                        <p className="contract-detail-page__muted">Aucun verso.</p>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="contract-detail-page__muted">
+                  Aucun conducteur secondaire renseigné.
+                </p>
+              )
+            ) : (
+              <form
+                className="contract-detail-page__edit-form"
+                onSubmit={handleSaveSecondaryDriver}
+              >
+                <label className="contract-detail-page__field">
+                  <span>Prénom</span>
+                  <input
+                    type="text"
+                    value={secondaryDriverFirstName}
+                    onChange={(event) => setSecondaryDriverFirstName(event.target.value)}
+                  />
+                </label>
+
+                <label className="contract-detail-page__field">
+                  <span>Nom</span>
+                  <input
+                    type="text"
+                    value={secondaryDriverLastName}
+                    onChange={(event) => setSecondaryDriverLastName(event.target.value)}
+                  />
+                </label>
+
+                <label className="contract-detail-page__field">
+                  <span>Numéro de permis</span>
+                  <input
+                    type="text"
+                    value={secondaryLicenseNumber}
+                    onChange={(event) => setSecondaryLicenseNumber(event.target.value)}
+                  />
+                </label>
+
+                <label className="contract-detail-page__field">
+                  <span>Date de délivrance</span>
+                  <input
+                    type="date"
+                    value={secondaryLicenseIssueDate}
+                    onChange={(event) => setSecondaryLicenseIssueDate(event.target.value)}
+                  />
+                </label>
+
+                <label className="contract-detail-page__field">
+                  <span>Pays</span>
+                  <input
+                    type="text"
+                    value={secondaryLicenseCountry}
+                    onChange={(event) => setSecondaryLicenseCountry(event.target.value)}
+                  />
+                </label>
+
+                <div className="contract-detail-page__subgrid">
+                  <label className="contract-detail-page__field">
+                    <span>Recto</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) =>
+                        void handleUploadSecondaryLicense(
+                          event,
+                          setSecondaryLicenseFrontPhotoUrl,
+                        )
+                      }
+                    />
+                    <small>
+                      {isUploadingSecondaryLicense
+                        ? "Upload en cours..."
+                        : secondaryLicenseFrontPhotoUrl
+                          ? "Recto enregistré."
+                          : "Aucun recto."}
+                    </small>
+                  </label>
+
+                  <label className="contract-detail-page__field">
+                    <span>Verso</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) =>
+                        void handleUploadSecondaryLicense(
+                          event,
+                          setSecondaryLicenseBackPhotoUrl,
+                        )
+                      }
+                    />
+                    <small>
+                      {isUploadingSecondaryLicense
+                        ? "Upload en cours..."
+                        : secondaryLicenseBackPhotoUrl
+                          ? "Verso enregistré."
+                          : "Aucun verso."}
+                    </small>
+                  </label>
+                </div>
+
+                <div className="contract-detail-page__actions">
+                  <button
+                    type="submit"
+                    className="contract-detail-page__primary-button"
+                    disabled={isSavingSecondaryDriver || isUploadingSecondaryLicense}
+                  >
+                    {isSavingSecondaryDriver
+                      ? "Enregistrement..."
+                      : "Enregistrer le conducteur secondaire"}
+                  </button>
+                </div>
+              </form>
+            )}
           </article>
         ) : null}
 
@@ -441,6 +829,10 @@ function ContractDetailPage() {
           </article>
         ) : null}
       </div>
+
+      {successMessage ? (
+        <p className="contract-detail-page__state">{successMessage}</p>
+      ) : null}
 
       {errorMessage ? (
         <p className="contract-detail-page__state contract-detail-page__state--error">
