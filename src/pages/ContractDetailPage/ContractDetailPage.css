@@ -128,7 +128,7 @@
   text-decoration: none;
 }
 
-.contract-detail-page__secondary-button {
+.contract-detail-page__secondary-button, #file-upload-button {
   background: #319bff;
   color: var(--text);
 }
