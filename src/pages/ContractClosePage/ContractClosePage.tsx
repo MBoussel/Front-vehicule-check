@@ -161,7 +161,6 @@ function ContractClosePage() {
       toNumber(extraKmFee) +
       toNumber(fuelFee) +
       toNumber(cleaningFee) +
-      toNumber(damageFee) +
       toNumber(otherFee) -
       toNumber(discountAmount)
     );
