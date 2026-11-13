@@ -14,6 +14,7 @@ import VehicleListPage from "../pages/VehicleListPage/VehicleListPage";
 import ContractListPage from "../pages/ContractListPage/ContractListPage";
 import ContractCreatePage from "../pages/ContractCreatePage/ContractCreatePage";
 import ContractDetailPage from "../pages/ContractDetailPage/ContractDetailPage";
+import ContractEditPage from "../pages/ContractEditPage/ContractEditPage";
 import ContractClosePage from "../pages/ContractClosePage/ContractClosePage";
 
 import CheckCreatePage from "../pages/CheckCreatePage/CheckCreatePage";
@@ -70,6 +71,7 @@ export const router = createBrowserRouter([
       { path: "contracts", element: <ContractListPage /> },
       { path: "contracts/new", element: <ContractCreatePage /> },
       { path: "contracts/:contractId", element: <ContractDetailPage /> },
+      { path: "contracts/:contractId/edit", element: <ContractEditPage /> },
       { path:"/contracts/:contractId/close", element:<ContractClosePage />},
 
       // CHECKS
