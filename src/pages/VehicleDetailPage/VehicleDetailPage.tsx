@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { deleteVehicle, getVehicleById } from "../../api/vehicleApi";
+import { getContracts, getContractClosure } from "../../api/contractApi";
+import type { RentalContract } from "../../types/contract";
 import type { Vehicle } from "../../types/vehicle";
 import "./VehicleDetailPage.css";
 
@@ -40,6 +42,8 @@ function VehicleDetailPage() {
   const navigate = useNavigate();
 
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [lastContractMileage, setLastContractMileage] = useState<number | null>(null);
+  const [lastContract, setLastContract] = useState<RentalContract | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -55,8 +59,39 @@ function VehicleDetailPage() {
       try {
         setIsLoading(true);
         setErrorMessage("");
-        const data = await getVehicleById(Number(vehicleId));
-        setVehicle(data);
+
+        const id = Number(vehicleId);
+        const [vehicleData, contracts] = await Promise.all([
+          getVehicleById(id),
+          getContracts(),
+        ]);
+
+        setVehicle(vehicleData);
+
+        const vehicleContracts = contracts
+          .filter((contract) => contract.vehicle_id === id)
+          .sort(
+            (a, b) =>
+              new Date(b.end_date).getTime() - new Date(a.end_date).getTime(),
+          );
+
+        const latestContract = vehicleContracts[0] ?? null;
+        setLastContract(latestContract);
+
+        if (latestContract) {
+          if (latestContract.external_end_mileage != null) {
+            setLastContractMileage(Number(latestContract.external_end_mileage));
+          } else {
+            try {
+              const closure = await getContractClosure(latestContract.id);
+              setLastContractMileage(Number(closure.return_mileage));
+            } catch {
+              setLastContractMileage(null);
+            }
+          }
+        } else {
+          setLastContractMileage(null);
+        }
       } catch (error) {
         setErrorMessage("Impossible de charger le véhicule.");
       } finally {
@@ -148,8 +183,25 @@ function VehicleDetailPage() {
             </div>
 
             <div className="vehicle-detail-page__item">
-              <span>Kilométrage</span>
+              <span>Kilométrage enregistré</span>
               <strong>{vehicle.current_mileage.toLocaleString("fr-FR")} km</strong>
+            </div>
+
+            <div className="vehicle-detail-page__item">
+              <span>Km au retour du dernier contrat</span>
+              <strong>
+                {lastContractMileage != null
+                  ? `${lastContractMileage.toLocaleString("fr-FR")} km`
+                  : "Non renseigné"}
+              </strong>
+              {lastContract ? (
+                <small>
+                  Contrat {lastContract.contract_number} · retour prévu le{" "}
+                  {new Date(lastContract.end_date).toLocaleDateString("fr-FR")}
+                </small>
+              ) : (
+                <small>Aucun contrat enregistré pour ce véhicule</small>
+              )}
             </div>
 
             <div className="vehicle-detail-page__item">
