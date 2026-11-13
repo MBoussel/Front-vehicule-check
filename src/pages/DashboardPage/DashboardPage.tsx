@@ -240,6 +240,7 @@ function DashboardPage() {
               <th>Kilomètres</th>
               <th>CA</th>
               <th>Net</th>
+              <th>Frais dommages récupérés</th>
             </tr>
           </thead>
 
@@ -257,6 +258,7 @@ function DashboardPage() {
                 <td>{formatMoney(vehicle.revenue)}</td>
 
                 <td>{formatMoney(vehicle.net_revenue)}</td>
+                <td>{formatMoney(vehicle.damage_fees)}</td>
               </tr>
             ))}
           </tbody>
