@@ -118,6 +118,14 @@ function DashboardPage() {
             {stats.kpis.total_km.toLocaleString("fr-FR")} km
           </strong>
         </article>
+
+        <article className="dashboard-page__kpi-card dashboard-page__kpi-card--damage">
+          <span>Frais de dommages récupérés</span>
+          <strong>
+            {formatMoney(stats.kpis.total_damage_fees)}
+          </strong>
+          <small>Sur les contrats clôturés</small>
+        </article>
       </section>
 
       <section className="dashboard-page__charts">
