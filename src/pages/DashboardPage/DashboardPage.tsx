@@ -17,7 +17,7 @@ import {
 
 import { getDashboardStats } from "../../api/dashboardApi";
 
-import type { DashboardStatsResponse } from "../../types/dashboard";
+import type { DashboardDamageFeeContract, DashboardStatsResponse, DashboardVehicleStats } from "../../types/dashboard";
 
 import "./DashboardPage.css";
 
@@ -39,7 +39,8 @@ function formatMoney(value: number): string {
 
 function DashboardPage() {
   const [stats, setStats] = useState<DashboardStatsResponse | null>(null);
-
+  const [selectedVehicle, setSelectedVehicle] = useState<DashboardVehicleStats | null>(null);
+  const [selectedContract, setSelectedContract] = useState<DashboardDamageFeeContract | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -55,6 +56,10 @@ function DashboardPage() {
 
     void loadStats();
   }, []);
+
+  function formatDate(value: string): string {
+    return new Date(value).toLocaleDateString("fr-FR");
+  }
 
   if (isLoading) {
     return (
@@ -258,12 +263,63 @@ function DashboardPage() {
                 <td>{formatMoney(vehicle.revenue)}</td>
 
                 <td>{formatMoney(vehicle.net_revenue)}</td>
-                <td>{formatMoney(vehicle.damage_fees)}</td>
+                <td>
+                  {vehicle.damage_fees > 0 ? (
+                    <button type="button" className="dashboard-page__damage-link" onClick={() => { setSelectedVehicle(vehicle); setSelectedContract(null); }} aria-label={`Voir les contrats avec frais de dommages pour ${vehicle.vehicle}`}>
+                      {formatMoney(vehicle.damage_fees)}<span>Voir le détail</span>
+                    </button>
+                  ) : formatMoney(vehicle.damage_fees)}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </section>
+
+      {selectedVehicle && (
+        <div className="dashboard-page__modal-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) { setSelectedVehicle(null); setSelectedContract(null); }
+        }}>
+          <section className="dashboard-page__damage-modal" role="dialog" aria-modal="true" aria-labelledby="damage-modal-title">
+            <header className="dashboard-page__damage-modal-header">
+              <div>
+                <p className="dashboard-page__eyebrow">Détail des dommages</p>
+                <h2 id="damage-modal-title">{selectedVehicle.vehicle}</h2>
+                <p>{selectedVehicle.damage_fee_contracts.length} contrat(s) avec frais enregistrés</p>
+              </div>
+              <button type="button" className="dashboard-page__modal-close" onClick={() => { setSelectedVehicle(null); setSelectedContract(null); }} aria-label="Fermer">×</button>
+            </header>
+            <div className="dashboard-page__damage-total">
+              <span>Total des frais de dommages</span><strong>{formatMoney(selectedVehicle.damage_fees)}</strong>
+            </div>
+            {selectedVehicle.damage_fee_contracts.length === 0 ? (
+              <p className="dashboard-page__damage-empty">Aucun contrat avec frais de dommages pour ce véhicule.</p>
+            ) : (
+              <div className="dashboard-page__damage-contract-list">
+                {selectedVehicle.damage_fee_contracts.map((contract) => (
+                  <button type="button" key={contract.id} className={`dashboard-page__damage-contract${selectedContract?.id === contract.id ? " is-selected" : ""}`} onClick={() => setSelectedContract(selectedContract?.id === contract.id ? null : contract)}>
+                    <span><strong>Contrat {contract.contract_number}</strong><small>{contract.customer_name} · {formatDate(contract.start_date)}</small></span>
+                    <strong>{formatMoney(contract.damage_fee)}</strong>
+                  </button>
+                ))}
+              </div>
+            )}
+            {selectedContract && (
+              <article className="dashboard-page__contract-details">
+                <h3>Contrat {selectedContract.contract_number}</h3>
+                <dl>
+                  <div><dt>Client</dt><dd>{selectedContract.customer_name}</dd></div>
+                  <div><dt>Début de location</dt><dd>{formatDate(selectedContract.start_date)}</dd></div>
+                  <div><dt>Fin de location</dt><dd>{formatDate(selectedContract.end_date)}</dd></div>
+                  <div><dt>Frais de dommages</dt><dd>{formatMoney(selectedContract.damage_fee)}</dd></div>
+                </dl>
+                {selectedContract.notes && <div className="dashboard-page__contract-notes"><strong>Notes de clôture</strong><p>{selectedContract.notes}</p></div>}
+              </article>
+            )}
+            <p className="dashboard-page__damage-disclaimer">Montants issus des clôtures de contrats enregistrées comme clôturées. Ils ne confirment pas que le paiement a effectivement été encaissé.</p>
+          </section>
+        </div>
+      )}
     </section>
   );
 }
