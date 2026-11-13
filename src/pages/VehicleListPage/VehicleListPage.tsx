@@ -111,7 +111,12 @@ function VehicleListPage() {
                 </div>
 
                 <div>
-                  <span>Kilométrage</span>
+                  <span>Km de départ</span>
+                  <strong>{vehicle.initial_mileage.toLocaleString("fr-FR")} km</strong>
+                </div>
+
+                <div>
+                  <span>Km actuel</span>
                   <strong>{vehicle.current_mileage.toLocaleString("fr-FR")} km</strong>
                 </div>
               </div>
