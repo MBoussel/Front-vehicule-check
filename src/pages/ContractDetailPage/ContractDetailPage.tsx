@@ -332,9 +332,14 @@ function ContractDetailPage() {
           <h2 className="contract-detail-page__title">{contract.contract_number}</h2>
         </div>
 
-        <span className={`contract-detail-page__status contract-detail-page__status--${contract.status}`}>
-          {formatStatus(contract.status)}
-        </span>
+        <div className="contract-detail-page__header-actions">
+          <span className={`contract-detail-page__status contract-detail-page__status--${contract.status}`}>
+            {formatStatus(contract.status)}
+          </span>
+          <Link to={`/contracts/${contract.id}/edit`} className="contract-detail-page__primary-button">
+            Modifier le contrat
+          </Link>
+        </div>
       </header>
 
       <div className="contract-detail-page__grid">
