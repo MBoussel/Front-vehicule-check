@@ -29,6 +29,7 @@ function VehicleCreatePage() {
         model: model.trim(),
         plate_number: plateNumber.trim().toUpperCase(),
         fuel_type: fuelType,
+        initial_mileage: Number(currentMileage),
         current_mileage: Number(currentMileage),
         status,
       });
@@ -99,7 +100,7 @@ function VehicleCreatePage() {
           </label>
 
           <label className="vehicle-create-page__field">
-            <span>Kilométrage actuel</span>
+            <span>Kilométrage de départ</span>
             <input
               type="number"
               min="0"
