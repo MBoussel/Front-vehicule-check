@@ -5,6 +5,10 @@ import { getVehicles } from "../../api/vehicleApi";
 import type { Vehicle } from "../../types/vehicle";
 import "./VehicleListPage.css";
 
+function formatMileage(value: number | null | undefined): string {
+  return `${Number(value ?? 0).toLocaleString("fr-FR")} km`;
+}
+
 function formatVehicleStatus(status: Vehicle["status"]): string {
   switch (status) {
     case "available":
@@ -112,12 +116,12 @@ function VehicleListPage() {
 
                 <div>
                   <span>Km de départ</span>
-                  <strong>{vehicle.initial_mileage.toLocaleString("fr-FR")} km</strong>
+                  <strong>{formatMileage(vehicle.initial_mileage ?? vehicle.current_mileage)}</strong>
                 </div>
 
                 <div>
                   <span>Km actuel</span>
-                  <strong>{vehicle.current_mileage.toLocaleString("fr-FR")} km</strong>
+                  <strong>{formatMileage(vehicle.current_mileage)}</strong>
                 </div>
               </div>
             </Link>
