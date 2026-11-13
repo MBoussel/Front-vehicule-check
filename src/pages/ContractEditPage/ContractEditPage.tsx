@@ -209,7 +209,7 @@ function ContractEditPage() {
         <div>
           <p className="contract-edit-page__eyebrow">Contrat · Modification</p>
           <h2>Modifier {contract.contract_number}</h2>
-          <p>Les états des lieux, les photos et le PDF déjà signé sont conservés.</p>
+          <p>Les états des lieux, les photos et le PDF déjà signé sont conservés. Le statut de signature reste inchangé.</p>
         </div>
         <span className="contract-edit-page__signed-note">
           PDF signé conservé
@@ -228,6 +228,7 @@ function ContractEditPage() {
                 <option value="roadstr">Roadstr</option>
                 <option value="turo">Turo</option>
                 <option value="other">Autre</option>
+                {values.source && !["internal", "roadstr", "turo", "other"].includes(values.source) ? <option value={values.source}>{values.source}</option> : null}
               </select>
             </label>
             <label className="contract-edit-page__field">
@@ -305,9 +306,9 @@ function ContractEditPage() {
             {field("start_date", "Départ (date et heure)", "datetime-local", { required: true })}
             {field("end_date", "Retour (date et heure)", "datetime-local", { required: true })}
             {field("rental_price", "Prix de location (€)", "number", { min: "0", step: "0.01" })}
-            {!isExternal ? field("deposit_amount", "Caution (€)", "number", { min: "0", step: "0.01" }) : null}
-            {!isExternal ? field("franchise_amount", "Franchise (€)", "number", { min: "0", step: "0.01" }) : null}
-            {!isExternal ? field("delivery_fee", "Frais de livraison (€)", "number", { min: "0", step: "0.01" }) : null}
+            {field("deposit_amount", "Caution (€)", "number", { min: "0", step: "0.01" })}
+            {field("franchise_amount", "Franchise (€)", "number", { min: "0", step: "0.01" })}
+            {field("delivery_fee", "Frais de livraison (€)", "number", { min: "0", step: "0.01" })}
             {area("pickup_location", "Lieu de remise")}
             {area("return_location", "Lieu de restitution")}
             {area("terms_and_conditions", "Conditions générales / remarques")}
