@@ -35,6 +35,7 @@ export interface VehicleUpdatePayload {
   model?: string;
   plate_number?: string;
   fuel_type?: FuelType;
+  initial_mileage?: number;
   current_mileage?: number;
   status?: VehicleStatus;
   deposit_amount?: number;
