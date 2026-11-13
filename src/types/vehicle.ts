@@ -12,6 +12,7 @@ export interface Vehicle {
   model: string;
   plate_number: string;
   fuel_type: string;
+  initial_mileage: number;
   current_mileage: number;
   status: string;
 
@@ -24,6 +25,7 @@ export interface VehicleCreatePayload {
   model: string;
   plate_number: string;
   fuel_type: FuelType;
+  initial_mileage: number;
   current_mileage: number;
   status: VehicleStatus;
 }
