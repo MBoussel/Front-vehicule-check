@@ -21,6 +21,7 @@ export type DashboardVehicleStats = {
   contracts: number;
   revenue: number;
   net_revenue: number;
+  damage_fees: number;
   km: number;
 };
 
