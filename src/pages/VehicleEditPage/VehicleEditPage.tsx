@@ -23,6 +23,7 @@ function VehicleEditPage() {
   const [model, setModel] = useState("");
   const [plateNumber, setPlateNumber] = useState("");
   const [fuelType, setFuelType] = useState<FuelType>("essence");
+  const [initialMileage, setInitialMileage] = useState("");
   const [currentMileage, setCurrentMileage] = useState("");
   const [status, setStatus] = useState<VehicleStatus>("available");
 
@@ -55,6 +56,7 @@ function VehicleEditPage() {
         setModel(vehicle.model);
         setPlateNumber(vehicle.plate_number);
         setFuelType(vehicle.fuel_type as FuelType);
+        setInitialMileage(toInputValue(vehicle.initial_mileage));
         setCurrentMileage(toInputValue(vehicle.current_mileage));
         setStatus(vehicle.status as VehicleStatus);
 
@@ -126,7 +128,7 @@ function VehicleEditPage() {
         <section className="vehicle-edit-page__section">
           <div className="vehicle-edit-page__section-header">
             <h3>Informations véhicule</h3>
-            <p>Identité, carburant, statut et kilométrage actuel.</p>
+            <p>Identité, carburant, statut et kilométrages du véhicule.</p>
           </div>
 
           <div className="vehicle-edit-page__grid">
@@ -171,6 +173,11 @@ function VehicleEditPage() {
                 <option value="hybrid">Hybride</option>
                 <option value="electric">Électrique</option>
               </select>
+            </label>
+
+            <label className="vehicle-edit-page__field">
+              <span>Kilométrage de départ</span>
+              <input type="number" value={initialMileage} readOnly />
             </label>
 
             <label className="vehicle-edit-page__field">
