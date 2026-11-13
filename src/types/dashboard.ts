@@ -3,6 +3,7 @@ export type DashboardKpis = {
   total_net_revenue: number;
   total_contracts: number;
   total_km: number;
+  total_damage_fees: number;
 };
 
 export type DashboardChartItem = {
