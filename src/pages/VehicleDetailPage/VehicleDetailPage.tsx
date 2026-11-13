@@ -183,7 +183,12 @@ function VehicleDetailPage() {
             </div>
 
             <div className="vehicle-detail-page__item">
-              <span>Kilométrage enregistré</span>
+              <span>Kilométrage de départ</span>
+              <strong>{vehicle.initial_mileage.toLocaleString("fr-FR")} km</strong>
+            </div>
+
+            <div className="vehicle-detail-page__item">
+              <span>Kilométrage actuel</span>
               <strong>{vehicle.current_mileage.toLocaleString("fr-FR")} km</strong>
             </div>
 
