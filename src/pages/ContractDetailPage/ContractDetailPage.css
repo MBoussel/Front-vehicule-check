@@ -231,3 +231,19 @@
     flex-direction: column;
   }
 }
+
+.contract-detail-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.contract-detail-page__header-actions .contract-detail-page__status {
+  margin-top: 0;
+}
+@media (max-width: 700px) {
+  .contract-detail-page__header-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
