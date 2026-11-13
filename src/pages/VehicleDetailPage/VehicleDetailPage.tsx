@@ -7,6 +7,10 @@ import type { RentalContract } from "../../types/contract";
 import type { Vehicle } from "../../types/vehicle";
 import "./VehicleDetailPage.css";
 
+function formatMileage(value: number | null | undefined): string {
+  return `${Number(value ?? 0).toLocaleString("fr-FR")} km`;
+}
+
 function formatStatus(status: Vehicle["status"]) {
   switch (status) {
     case "available":
@@ -184,12 +188,12 @@ function VehicleDetailPage() {
 
             <div className="vehicle-detail-page__item">
               <span>Kilométrage de départ</span>
-              <strong>{vehicle.initial_mileage.toLocaleString("fr-FR")} km</strong>
+              <strong>{formatMileage(vehicle.initial_mileage ?? vehicle.current_mileage)}</strong>
             </div>
 
             <div className="vehicle-detail-page__item">
               <span>Kilométrage actuel</span>
-              <strong>{vehicle.current_mileage.toLocaleString("fr-FR")} km</strong>
+              <strong>{formatMileage(vehicle.current_mileage)}</strong>
             </div>
 
             <div className="vehicle-detail-page__item">
