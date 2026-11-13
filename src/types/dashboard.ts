@@ -16,12 +16,24 @@ export type DashboardMonthItem = {
   value: number;
 };
 
+export type DashboardDamageFeeContract = {
+  id: number;
+  contract_number: string;
+  customer_name: string;
+  start_date: string;
+  end_date: string;
+  damage_fee: number;
+  notes: string | null;
+};
+
 export type DashboardVehicleStats = {
+  vehicle_id: number;
   vehicle: string;
   contracts: number;
   revenue: number;
   net_revenue: number;
   damage_fees: number;
+  damage_fee_contracts: DashboardDamageFeeContract[];
   km: number;
 };
 
