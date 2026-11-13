@@ -261,3 +261,128 @@
     padding: 12px;
   }
 }
+
+.dashboard-page__damage-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #facc15;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  text-align: left;
+}
+.dashboard-page__damage-link span {
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.dashboard-page__damage-link:hover span { color: #facc15; }
+
+.dashboard-page__modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+}
+.dashboard-page__damage-modal {
+  width: min(680px, 100%);
+  max-height: min(85vh, 850px);
+  overflow-y: auto;
+  padding: 28px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 24px;
+  background: #151a25;
+  color: #fff;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+}
+.dashboard-page__damage-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.dashboard-page__damage-modal-header h2 {
+  margin: 0 0 6px;
+  font-size: 1.55rem;
+}
+.dashboard-page__damage-modal-header p:last-child {
+  margin: 0;
+  color: var(--text-soft);
+}
+.dashboard-page__modal-close {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+.dashboard-page__damage-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  background: rgba(250,204,21,0.1);
+}
+.dashboard-page__damage-total span { color: var(--text-soft); }
+.dashboard-page__damage-total strong { color: #facc15; font-size: 1.35rem; }
+.dashboard-page__damage-contract-list { display: flex; flex-direction: column; gap: 8px; }
+.dashboard-page__damage-contract {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.035);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.dashboard-page__damage-contract:hover,
+.dashboard-page__damage-contract.is-selected {
+  border-color: rgba(250,204,21,0.55);
+  background: rgba(250,204,21,0.08);
+}
+.dashboard-page__damage-contract > span { display: flex; flex-direction: column; gap: 5px; }
+.dashboard-page__damage-contract small { color: var(--text-soft); }
+.dashboard-page__damage-contract > strong { color: #facc15; white-space: nowrap; }
+.dashboard-page__contract-details {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(45,212,191,0.25);
+  border-radius: 16px;
+  background: rgba(45,212,191,0.05);
+}
+.dashboard-page__contract-details h3 { margin: 0 0 14px; }
+.dashboard-page__contract-details dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.dashboard-page__contract-details dl div { display: flex; flex-direction: column; gap: 5px; }
+.dashboard-page__contract-details dt { color: var(--text-soft); font-size: 0.8rem; }
+.dashboard-page__contract-details dd { margin: 0; font-weight: 800; }
+.dashboard-page__contract-notes { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+.dashboard-page__contract-notes p { margin: 6px 0 0; color: var(--text-soft); white-space: pre-wrap; }
+.dashboard-page__damage-disclaimer { margin: 18px 0 0; color: var(--text-soft); font-size: 0.76rem; line-height: 1.5; }
+.dashboard-page__damage-empty { color: var(--text-soft); }
+@media (max-width: 560px) {
+  .dashboard-page__damage-modal { padding: 20px; }
+  .dashboard-page__damage-total { align-items: flex-start; flex-direction: column; }
+  .dashboard-page__contract-details dl { grid-template-columns: 1fr; }
+}
