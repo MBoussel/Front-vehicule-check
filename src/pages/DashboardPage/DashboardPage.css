@@ -64,7 +64,7 @@
 .dashboard-page__kpis {
   display: grid;
 
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 
   gap: 18px;
 }
@@ -109,6 +109,21 @@
   font-size: 0.95rem;
 
   font-weight: 700;
+}
+
+.dashboard-page__kpi-card--damage::before {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(250, 204, 21, 0.16),
+      transparent 45%
+    );
+}
+
+.dashboard-page__kpi-card small {
+  position: relative;
+  color: var(--text-soft);
+  font-size: 0.8rem;
 }
 
 .dashboard-page__kpi-card strong {
