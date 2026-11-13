@@ -92,6 +92,7 @@ function VehicleEditPage() {
         model: model.trim(),
         plate_number: plateNumber.trim().toUpperCase(),
         fuel_type: fuelType,
+        initial_mileage: toNumberOrZero(initialMileage),
         current_mileage: toNumberOrZero(currentMileage),
         status,
 
@@ -177,7 +178,13 @@ function VehicleEditPage() {
 
             <label className="vehicle-edit-page__field">
               <span>Kilométrage de départ</span>
-              <input type="number" value={initialMileage} readOnly />
+              <input
+                type="number"
+                min="0"
+                value={initialMileage}
+                onChange={(event) => setInitialMileage(event.target.value)}
+                required
+              />
             </label>
 
             <label className="vehicle-edit-page__field">
