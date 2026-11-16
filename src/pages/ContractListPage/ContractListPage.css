@@ -176,6 +176,13 @@
 }
 
 
+.contract-card__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .contract-card__dates {
   display: none;
 }
@@ -183,11 +190,13 @@
 @media (min-width: 701px) {
   .contract-card__dates {
     display: flex;
-    flex-direction: row;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 6px 18px;
-    margin-top: 2px;
+    justify-content: flex-end;
+    gap: 4px 14px;
+    margin-left: auto;
     color: var(--text-soft);
-    font-size: 0.86rem;
+    font-size: 0.82rem;
+    font-weight: 400;
   }
 }
