@@ -263,7 +263,7 @@ function DashboardPage() {
                 {stats.km_by_vehicle.map((_, index) => (
                   <Cell
                     key={index}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={getVehicleColor(String(stats.km_by_vehicle[index]?.name ?? ""))}
                   />
                 ))}
               </Bar>
