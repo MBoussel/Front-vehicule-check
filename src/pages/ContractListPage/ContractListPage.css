@@ -174,3 +174,20 @@
     margin-top: 12px;
   }
 }
+
+
+.contract-card__dates {
+  display: none;
+}
+
+@media (min-width: 701px) {
+  .contract-card__dates {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 2px;
+    color: var(--text-soft);
+    font-size: 0.86rem;
+  }
+}
