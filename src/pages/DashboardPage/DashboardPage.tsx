@@ -111,6 +111,16 @@ function DashboardPage() {
         </article>
 
         <article className="dashboard-page__kpi-card">
+          <span>Remboursements carburant (hors CA)</span>
+          <strong>{formatMoney(stats.kpis.total_fuel_reimbursements)}</strong>
+        </article>
+
+        <article className="dashboard-page__kpi-card">
+          <span>Total encaissé</span>
+          <strong>{formatMoney(stats.kpis.total_collected)}</strong>
+        </article>
+
+        <article className="dashboard-page__kpi-card">
           <span>🚗 Contrats</span>
           <strong>
             {stats.kpis.total_contracts}
@@ -245,6 +255,8 @@ function DashboardPage() {
               <th>Kilomètres</th>
               <th>CA</th>
               <th>Net</th>
+              <th>Remb. carburant</th>
+              <th>Total encaissé</th>
               <th>Frais dommages récupérés</th>
             </tr>
           </thead>
@@ -263,6 +275,8 @@ function DashboardPage() {
                 <td>{formatMoney(vehicle.revenue)}</td>
 
                 <td>{formatMoney(vehicle.net_revenue)}</td>
+                <td>{formatMoney(vehicle.fuel_reimbursements)}</td>
+                <td>{formatMoney(vehicle.total_collected)}</td>
                 <td>
                   {vehicle.damage_fees > 0 ? (
                     <button type="button" className="dashboard-page__damage-link" onClick={() => { setSelectedVehicle(vehicle); setSelectedContract(null); }} aria-label={`Voir les contrats avec frais de dommages pour ${vehicle.vehicle}`}>
