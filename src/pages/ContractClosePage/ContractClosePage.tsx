@@ -497,6 +497,9 @@ function ContractClosePage() {
 
       <form className="contract-close-page__form" onSubmit={handleSave}>
         <h3>Frais additionnels</h3>
+        <p>
+          Le carburant refacturé est suivi comme un remboursement de frais : il est inclus dans le total final, mais exclu du chiffre d'affaires. Les autres frais sont comptés comme recettes supplémentaires.
+        </p>
 
         <div className="contract-close-page__form-grid">
           <label className="contract-close-page__field">
@@ -511,7 +514,7 @@ function ContractClosePage() {
           </label>
 
           <label className="contract-close-page__field">
-            <span>Frais carburant (€)</span>
+            <span>Remboursement carburant (€)</span>
             <input
               type="number"
               min="0"
@@ -544,7 +547,7 @@ function ContractClosePage() {
           </label>
 
           <label className="contract-close-page__field">
-            <span>Autres frais (€)</span>
+            <span>Autres recettes / frais facturés (€)</span>
             <input
               type="number"
               min="0"
