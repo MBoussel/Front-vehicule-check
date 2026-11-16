@@ -481,7 +481,7 @@ function ContractClosePage() {
               <strong>Commission :</strong> {formatMoney(contract.platform_fee)}
             </p>
             <p>
-              <strong>Revenu net :</strong> {formatMoney(contract.net_revenue)}
+              <strong>Revenu net plateforme :</strong> {formatMoney(contract.net_revenue)}
             </p>
           </article>
         )}
@@ -489,7 +489,7 @@ function ContractClosePage() {
         <article className="contract-close-page__card">
           <h3>Total</h3>
           <p>
-            <strong>{isExternalContract ? "Revenu net :" : "Prix location :"}</strong>{" "}
+            <strong>{isExternalContract ? "Revenu net total :" : "Prix location :"}</strong>{" "}
             {formatMoney(
               isExternalContract
                 ? toNumber(contract.net_revenue) +
