@@ -163,7 +163,21 @@ function DashboardPage() {
                 ))}
               </Pie>
 
-              <Tooltip />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const item = payload[0];
+                  const color = String(item.color ?? item.payload?.fill ?? "#ffffff");
+                  const label = String(item.name ?? item.payload?.name ?? "");
+                  const value = Number(item.value ?? 0);
+                  return (
+                    <div className="dashboard-page__pie-tooltip">
+                      <strong style={{ color }}>{label}</strong>
+                      <span style={{ color }}>{formatMoney(value)}</span>
+                    </div>
+                  );
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </article>
