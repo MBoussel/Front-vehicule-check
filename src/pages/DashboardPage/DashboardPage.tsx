@@ -167,8 +167,9 @@ function DashboardPage() {
                 content={({ active, payload }) => {
                   if (!active || !payload?.length) return null;
                   const item = payload[0];
-                  const color = String(item.color ?? item.payload?.fill ?? "#ffffff");
                   const label = String(item.name ?? item.payload?.name ?? "");
+                  const sourceIndex = stats.source_distribution.findIndex((source) => source.name === label);
+                  const color = COLORS[sourceIndex >= 0 ? sourceIndex % COLORS.length : 0];
                   const value = Number(item.value ?? 0);
                   return (
                     <div className="dashboard-page__pie-tooltip">
