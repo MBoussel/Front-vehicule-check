@@ -96,7 +96,14 @@ function ContractListPage() {
             className="contract-card"
           >
             <div className="contract-card__content">
-              <strong>{contract.contract_number}</strong>
+              <div className="contract-card__title-row">
+                <strong>{contract.contract_number}</strong>
+
+                <span className="contract-card__dates">
+                  <span>Du {formatContractDate(contract.start_date)}</span>
+                  <span>Au {formatContractDate(contract.end_date)}</span>
+                </span>
+              </div>
 
               <span>
                 {contract.customer_first_name} {contract.customer_last_name}
@@ -104,11 +111,6 @@ function ContractListPage() {
 
               <span>
                 {contract.vehicle?.brand} {contract.vehicle?.model}
-              </span>
-
-              <span className="contract-card__dates">
-                <span>Du {formatContractDate(contract.start_date)}</span>
-                <span>Au {formatContractDate(contract.end_date)}</span>
               </span>
             </div>
 
