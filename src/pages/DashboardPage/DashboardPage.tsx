@@ -315,7 +315,7 @@ function DashboardPage() {
           <tbody>
             {stats.vehicles.map((vehicle) => (
               <tr key={vehicle.vehicle}>
-                <td><span style={{ color: getVehicleColor(vehicle.vehicle), display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 600 }}><span style={{ backgroundColor: getVehicleColor(vehicle.vehicle), display: "inline-block", width: 9, height: 9, borderRadius: "50%", flexShrink: 0 }} />{vehicle.vehicle}</span></td>
+                <td><span style={{ color: getVehicleColor(vehicle.vehicle), fontWeight: 600 }}>{vehicle.vehicle}</span></td>
 
                 <td>{vehicle.contracts}</td>
 
