@@ -35,6 +35,19 @@ function getContractSourceClass(contract: RentalContract): string {
   return "contract-card__source--external";
 }
 
+function formatContractDate(value: string): string {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
 function ContractListPage() {
   const [contracts, setContracts] = useState<RentalContract[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,6 +104,11 @@ function ContractListPage() {
 
               <span>
                 {contract.vehicle?.brand} {contract.vehicle?.model}
+              </span>
+
+              <span className="contract-card__dates">
+                <span>Du {formatContractDate(contract.start_date)}</span>
+                <span>Au {formatContractDate(contract.end_date)}</span>
               </span>
             </div>
 
