@@ -385,6 +385,12 @@ function ContractClosePage() {
             <p>
               La clôture est validée. Tu peux télécharger les PDF départ / retour ou revenir au contrat.
             </p>
+            <Link
+              to={`/contracts/${contract.id}/edit`}
+              className="contract-close-page__primary-button"
+            >
+              Modifier le contrat
+            </Link>
           </div>
         </div>
       ) : null}
@@ -484,7 +490,15 @@ function ContractClosePage() {
           <h3>Total</h3>
           <p>
             <strong>{isExternalContract ? "Revenu net :" : "Prix location :"}</strong>{" "}
-            {formatMoney(isExternalContract ? contract.net_revenue : displayClosure?.rental_price)}
+            {formatMoney(
+              isExternalContract
+                ? toNumber(contract.net_revenue) +
+                    toNumber(extraKmFee) +
+                    toNumber(cleaningFee) +
+                    toNumber(otherFee) -
+                    toNumber(discountAmount)
+                : displayClosure?.rental_price,
+            )}
           </p>
           <p>
             <strong>Total final :</strong>{" "}
