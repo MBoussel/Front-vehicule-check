@@ -189,14 +189,19 @@
 
 @media (min-width: 701px) {
   .contract-card__dates {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 4px 14px;
+    gap: 4px 12px;
     margin-left: auto;
+    padding: 6px 12px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.07);
     color: var(--text-soft);
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 400;
+    white-space: nowrap;
   }
 }
