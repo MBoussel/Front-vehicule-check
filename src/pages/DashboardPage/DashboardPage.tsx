@@ -194,7 +194,21 @@ function DashboardPage() {
 
               <YAxis />
 
-              <Tooltip />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const item = payload[0];
+                  const label = String(item.payload?.name ?? item.name ?? "");
+                  const vehicleIndex = stats.revenue_by_vehicle.findIndex((vehicle) => vehicle.name === label);
+                  const color = COLORS[vehicleIndex >= 0 ? vehicleIndex % COLORS.length : 0];
+                  return (
+                    <div className="dashboard-page__pie-tooltip">
+                      <strong style={{ color }}>{label}</strong>
+                      <span style={{ color }}>{formatMoney(Number(item.value ?? 0))}</span>
+                    </div>
+                  );
+                }}
+              />
 
               <Bar dataKey="value" radius={[10, 10, 0, 0]}>
                 {stats.revenue_by_vehicle.map((_, index) => (
@@ -221,7 +235,21 @@ function DashboardPage() {
 
               <YAxis />
 
-              <Tooltip />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const item = payload[0];
+                  const label = String(item.payload?.name ?? item.name ?? "");
+                  const vehicleIndex = stats.km_by_vehicle.findIndex((vehicle) => vehicle.name === label);
+                  const color = COLORS[vehicleIndex >= 0 ? vehicleIndex % COLORS.length : 0];
+                  return (
+                    <div className="dashboard-page__pie-tooltip">
+                      <strong style={{ color }}>{label}</strong>
+                      <span style={{ color }}>{Number(item.value ?? 0).toLocaleString("fr-FR")} km</span>
+                    </div>
+                  );
+                }}
+              />
 
               <Bar dataKey="value" radius={[10, 10, 0, 0]}>
                 {stats.km_by_vehicle.map((_, index) => (
