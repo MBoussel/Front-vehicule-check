@@ -1,6 +1,8 @@
 export type DashboardKpis = {
   total_revenue: number;
   total_net_revenue: number;
+  total_fuel_reimbursements: number;
+  total_collected: number;
   total_contracts: number;
   total_km: number;
   total_damage_fees: number;
@@ -32,6 +34,8 @@ export type DashboardVehicleStats = {
   contracts: number;
   revenue: number;
   net_revenue: number;
+  fuel_reimbursements: number;
+  total_collected: number;
   damage_fees: number;
   damage_fee_contracts: DashboardDamageFeeContract[];
   km: number;
