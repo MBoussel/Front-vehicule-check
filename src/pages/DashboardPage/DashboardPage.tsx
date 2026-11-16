@@ -61,6 +61,15 @@ function DashboardPage() {
     return new Date(value).toLocaleDateString("fr-FR");
   }
 
+  function getVehicleColor(name: string): string {
+    const index = stats?.vehicles.findIndex((vehicle) => vehicle.vehicle === name) ?? -1;
+    return COLORS[index >= 0 ? index % COLORS.length : 0];
+  }
+
+  function formatSourceLabel(name: string): string {
+    return name.length ? name.charAt(0).toLocaleUpperCase("fr-FR") + name.slice(1) : name;
+  }
+
   if (isLoading) {
     return (
       <p className="dashboard-page__state">
@@ -158,7 +167,7 @@ function DashboardPage() {
                 {stats.source_distribution.map((_, index) => (
                   <Cell
                     key={index}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={getVehicleColor(String(stats.revenue_by_vehicle[index]?.name ?? ""))}
                   />
                 ))}
               </Pie>
@@ -167,7 +176,7 @@ function DashboardPage() {
                 content={({ active, payload }) => {
                   if (!active || !payload?.length) return null;
                   const item = payload[0];
-                  const label = String(item.name ?? item.payload?.name ?? "");
+                  const label = formatSourceLabel(String(item.name ?? item.payload?.name ?? ""));
                   const sourceIndex = stats.source_distribution.findIndex((source) => source.name === label);
                   const color = COLORS[sourceIndex >= 0 ? sourceIndex % COLORS.length : 0];
                   const value = Number(item.value ?? 0);
@@ -200,7 +209,7 @@ function DashboardPage() {
                   const item = payload[0];
                   const label = String(item.payload?.name ?? item.name ?? "");
                   const vehicleIndex = stats.revenue_by_vehicle.findIndex((vehicle) => vehicle.name === label);
-                  const color = COLORS[vehicleIndex >= 0 ? vehicleIndex % COLORS.length : 0];
+                  const color = getVehicleColor(label);
                   return (
                     <div className="dashboard-page__pie-tooltip">
                       <strong style={{ color }}>{label}</strong>
@@ -214,7 +223,7 @@ function DashboardPage() {
                 {stats.revenue_by_vehicle.map((_, index) => (
                   <Cell
                     key={index}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={getVehicleColor(String(stats.km_by_vehicle[index]?.name ?? ""))}
                   />
                 ))}
               </Bar>
@@ -241,7 +250,7 @@ function DashboardPage() {
                   const item = payload[0];
                   const label = String(item.payload?.name ?? item.name ?? "");
                   const vehicleIndex = stats.km_by_vehicle.findIndex((vehicle) => vehicle.name === label);
-                  const color = COLORS[vehicleIndex >= 0 ? vehicleIndex % COLORS.length : 0];
+                  const color = getVehicleColor(label);
                   return (
                     <div className="dashboard-page__pie-tooltip">
                       <strong style={{ color }}>{label}</strong>
@@ -307,7 +316,7 @@ function DashboardPage() {
           <tbody>
             {stats.vehicles.map((vehicle) => (
               <tr key={vehicle.vehicle}>
-                <td>{vehicle.vehicle}</td>
+                <td><span className="dashboard-page__vehicle-name" style={{ color: getVehicleColor(vehicle.vehicle) }}><span className="dashboard-page__vehicle-dot" style={{ backgroundColor: getVehicleColor(vehicle.vehicle) }} />{vehicle.vehicle}</span></td>
 
                 <td>{vehicle.contracts}</td>
 
