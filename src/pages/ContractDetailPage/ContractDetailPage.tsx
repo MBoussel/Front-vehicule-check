@@ -5,12 +5,11 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { downloadCheckPdf } from "../../api/checkApi";
 import {
   getContractById,
-  getContractClosure,
   updateContract,
 } from "../../api/contractApi";
 import { uploadLicensePhoto } from "../../api/uploadApi";
@@ -91,8 +90,6 @@ function hasSecondaryDriver(contract: RentalContract): boolean {
 
 function ContractDetailPage() {
   const { contractId } = useParams();
-  const navigate = useNavigate();
-
   const [contract, setContract] = useState<RentalContract | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -135,18 +132,8 @@ function ContractDetailPage() {
         setSuccessMessage("");
 
         const data = await getContractById(Number(contractId));
-
-        try {
-          const closure = await getContractClosure(Number(contractId));
-
-          if (closure.status === "closed") {
-            navigate(`/contracts/${contractId}/close`, { replace: true });
-            return;
-          }
-        } catch {
-          // Pas de clôture enregistrée, on reste sur la page détail du contrat.
-        }
-
+        // Keep the contract detail page accessible even after closure so
+        // financial or administrative mistakes can be corrected.
         setContract(data);
       } catch {
         setErrorMessage("Impossible de charger le contrat.");
@@ -156,7 +143,7 @@ function ContractDetailPage() {
     }
 
     void loadContract();
-  }, [contractId, navigate]);
+  }, [contractId]);
 
   useEffect(() => {
     if (!contract) return;
