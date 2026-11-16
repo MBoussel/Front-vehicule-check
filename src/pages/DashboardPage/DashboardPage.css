@@ -225,15 +225,36 @@
 }
 
 .recharts-default-tooltip {
-  border: none !important;
-
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 18px !important;
-
-  background: rgba(14, 18, 27, 0.96) !important;
-
-  box-shadow:
-    0 20px 50px rgba(0,0,0,0.45) !important;
+  background: rgba(14, 18, 27, 0.98) !important;
+  color: #ffffff !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.45) !important;
 }
+
+.recharts-tooltip-label,
+.recharts-tooltip-item,
+.recharts-tooltip-item-name,
+.recharts-tooltip-item-value,
+.recharts-tooltip-item-unit {
+  color: #ffffff !important;
+}
+
+.dashboard-page__pie-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 145px;
+  padding: 13px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(14, 18, 27, 0.98);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  font-size: 0.9rem;
+}
+
+.dashboard-page__pie-tooltip strong { font-weight: 900; }
+.dashboard-page__pie-tooltip span { font-size: 1rem; font-weight: 800; }
 
 @media (max-width: 1200px) {
   .dashboard-page__kpis {
