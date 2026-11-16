@@ -167,7 +167,7 @@ function DashboardPage() {
                 {stats.source_distribution.map((_, index) => (
                   <Cell
                     key={index}
-                    fill={getVehicleColor(String(stats.revenue_by_vehicle[index]?.name ?? ""))}
+                    fill={COLORS[index % COLORS.length]}
                   />
                 ))}
               </Pie>
@@ -176,8 +176,9 @@ function DashboardPage() {
                 content={({ active, payload }) => {
                   if (!active || !payload?.length) return null;
                   const item = payload[0];
-                  const label = formatSourceLabel(String(item.name ?? item.payload?.name ?? ""));
-                  const sourceIndex = stats.source_distribution.findIndex((source) => source.name === label);
+                  const rawLabel = String(item.name ?? item.payload?.name ?? "");
+                  const label = formatSourceLabel(rawLabel);
+                  const sourceIndex = stats.source_distribution.findIndex((source) => source.name === rawLabel);
                   const color = COLORS[sourceIndex >= 0 ? sourceIndex % COLORS.length : 0];
                   const value = Number(item.value ?? 0);
                   return (
@@ -222,7 +223,7 @@ function DashboardPage() {
                 {stats.revenue_by_vehicle.map((_, index) => (
                   <Cell
                     key={index}
-                    fill={getVehicleColor(String(stats.km_by_vehicle[index]?.name ?? ""))}
+                    fill={getVehicleColor(String(stats.revenue_by_vehicle[index]?.name ?? ""))}
                   />
                 ))}
               </Bar>
