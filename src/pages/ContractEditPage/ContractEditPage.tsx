@@ -152,7 +152,9 @@ function ContractEditPage() {
         is_external: source !== "internal",
         external_platform_reference: nullable(values.external_platform_reference),
         platform_fee: numeric(values.platform_fee),
-        net_revenue: numeric(values.net_revenue),
+        net_revenue: isExternal
+          ? Number(values.rental_price || 0) - Number(values.platform_fee || 0)
+          : null,
         external_start_mileage: numeric(values.external_start_mileage),
         external_end_mileage: numeric(values.external_end_mileage),
         customer_first_name: values.customer_first_name.trim(),
@@ -256,7 +258,14 @@ function ContractEditPage() {
             <div className="contract-edit-page__grid">
               {field("external_platform_reference", "Référence plateforme")}
               {field("platform_fee", "Commission plateforme (€)", "number", { min: "0", step: "0.01" })}
-              {field("net_revenue", "Revenu net (€)", "number", { step: "0.01" })}
+              <label className="contract-edit-page__field">
+                <span>Revenu net calculé (€)</span>
+                <input
+                  type="number"
+                  value={(Number(values.rental_price || 0) - Number(values.platform_fee || 0)).toFixed(2)}
+                  readOnly
+                />
+              </label>
               {field("external_start_mileage", "Kilométrage départ", "number", { min: "0", step: "1" })}
               {field("external_end_mileage", "Kilométrage retour", "number", { min: "0", step: "1" })}
             </div>
